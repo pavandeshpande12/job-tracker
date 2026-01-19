@@ -130,7 +130,7 @@ export default function JobCharts({ stats }: Props) {
                   outerRadius={70}
                   innerRadius={40}
                   strokeWidth={0}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
                   labelLine={{ stroke: "#64748b", strokeWidth: 1 }}
                 >
                   {pieData.map((_, index) => (
