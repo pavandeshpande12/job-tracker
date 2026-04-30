@@ -12,7 +12,8 @@ type JobType = {
   company: string;
   role: string;
   status: string;
-  appliedDate: string;
+  appliedDate?: string;
+  rejectedDate?: string;
   notes?: string;
 };
 
@@ -49,6 +50,7 @@ export default function JobList({ userEmail, refreshJobs }: Props) {
   const [editRole, setEditRole] = useState("");
   const [editStatus, setEditStatus] = useState("Applied");
   const [editDate, setEditDate] = useState("");
+  const [editRejectedDate, setEditRejectedDate] = useState("");
   const [editNotes, setEditNotes] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -95,7 +97,8 @@ export default function JobList({ userEmail, refreshJobs }: Props) {
     setEditCompany(job.company);
     setEditRole(job.role);
     setEditStatus(job.status);
-    setEditDate(formatDateInput(job.appliedDate));
+    setEditDate(job.appliedDate ? formatDateInput(job.appliedDate) : "");
+    setEditRejectedDate(job.rejectedDate ? formatDateInput(job.rejectedDate) : "");
     setEditNotes(job.notes || "");
   };
 
@@ -113,7 +116,8 @@ export default function JobList({ userEmail, refreshJobs }: Props) {
           company: editCompany,
           role: editRole,
           status: editStatus,
-          appliedDate: editDate,
+          appliedDate: editDate || undefined,
+          rejectedDate: editRejectedDate || undefined,
           notes: editNotes,
         }),
       });
@@ -232,7 +236,8 @@ export default function JobList({ userEmail, refreshJobs }: Props) {
                   <th style={{ textAlign: "left", padding: "14px 20px", fontWeight: 600, color: "#e2e8f0", fontSize: 12, textTransform: "uppercase", letterSpacing: 1 }}>Company</th>
                   <th style={{ textAlign: "left", padding: "14px 20px", fontWeight: 600, color: "#e2e8f0", fontSize: 12, textTransform: "uppercase", letterSpacing: 1 }}>Role</th>
                   <th style={{ textAlign: "left", padding: "14px 20px", fontWeight: 600, color: "#e2e8f0", fontSize: 12, textTransform: "uppercase", letterSpacing: 1 }}>Status</th>
-                  <th style={{ textAlign: "left", padding: "14px 20px", fontWeight: 600, color: "#e2e8f0", fontSize: 12, textTransform: "uppercase", letterSpacing: 1 }}>Date</th>
+                  <th style={{ textAlign: "left", padding: "14px 20px", fontWeight: 600, color: "#e2e8f0", fontSize: 12, textTransform: "uppercase", letterSpacing: 1 }}>Applied Date</th>
+                  <th style={{ textAlign: "left", padding: "14px 20px", fontWeight: 600, color: "#e2e8f0", fontSize: 12, textTransform: "uppercase", letterSpacing: 1 }}>Rejected Date</th>
                   <th style={{ textAlign: "left", padding: "14px 20px", fontWeight: 600, color: "#e2e8f0", fontSize: 12, textTransform: "uppercase", letterSpacing: 1 }}>Notes</th>
                   <th style={{ textAlign: "right", padding: "14px 20px", fontWeight: 600, color: "#e2e8f0", fontSize: 12, textTransform: "uppercase", letterSpacing: 1 }}>Actions</th>
                 </tr>
@@ -258,11 +263,22 @@ export default function JobList({ userEmail, refreshJobs }: Props) {
                       </span>
                     </td>
                     <td style={{ padding: "18px 20px", color: "#cbd5e1" }}>
-                      {new Date(job.appliedDate).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric"
-                      })}
+                      {job.appliedDate
+                        ? new Date(job.appliedDate).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric"
+                          })
+                        : "—"}
+                    </td>
+                    <td style={{ padding: "18px 20px", color: "#fca5a5" }}>
+                      {job.rejectedDate
+                        ? new Date(job.rejectedDate).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric"
+                          })
+                        : "—"}
                     </td>
                     <td style={{ padding: "18px 20px", color: "#94a3b8", maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {job.notes || "—"}
@@ -297,7 +313,7 @@ export default function JobList({ userEmail, refreshJobs }: Props) {
           {editingJob && (
             <div style={{ marginTop: 24, padding: 24, background: "#1e293b", border: "2px solid #06b6d4", borderRadius: 12 }}>
               <p style={{ fontSize: 15, fontWeight: 600, color: "#22d3ee", marginBottom: 16 }}>✏️ Editing: {editingJob.company}</p>
-              <form onSubmit={handleUpdate} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+              <form onSubmit={handleUpdate} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <input
                   style={inputStyle}
                   value={editCompany}
@@ -328,7 +344,16 @@ export default function JobList({ userEmail, refreshJobs }: Props) {
                   style={{ ...inputStyle, colorScheme: "dark" }}
                   value={editDate}
                   onChange={(e) => setEditDate(e.target.value)}
-                  required
+                  placeholder="Applied Date"
+                  title="Applied Date"
+                />
+                <input
+                  type="date"
+                  style={{ ...inputStyle, colorScheme: "dark" }}
+                  value={editRejectedDate}
+                  onChange={(e) => setEditRejectedDate(e.target.value)}
+                  placeholder="Rejected Date"
+                  title="Rejected Date"
                 />
                 <input
                   style={inputStyle}

@@ -31,12 +31,12 @@ export async function GET(req: Request) {
 // POST /api/jobs  (create job)
 export async function POST(req: Request) {
   try {
-    const { userEmail, company, role, status, appliedDate, notes } =
+    const { userEmail, company, role, status, appliedDate, rejectedDate, notes } =
       await req.json();
 
-    if (!userEmail || !company || !role || !appliedDate) {
+    if (!userEmail || !company || !role) {
       return NextResponse.json(
-        { ok: false, message: "userEmail, company, role, appliedDate required" },
+        { ok: false, message: "userEmail, company, role required" },
         { status: 400 }
       );
     }
@@ -48,7 +48,8 @@ export async function POST(req: Request) {
       company,
       role,
       status: status || "Applied",
-      appliedDate: new Date(appliedDate),
+      appliedDate: appliedDate ? new Date(appliedDate) : undefined,
+      rejectedDate: rejectedDate ? new Date(rejectedDate) : undefined,
       notes: notes || "",
     });
 
@@ -65,7 +66,7 @@ export async function POST(req: Request) {
 // PUT /api/jobs  (update by id)
 export async function PUT(req: Request) {
   try {
-    const { id, company, role, status, appliedDate, notes } = await req.json();
+    const { id, company, role, status, appliedDate, rejectedDate, notes } = await req.json();
 
     if (!id) {
       return NextResponse.json(
@@ -76,15 +77,18 @@ export async function PUT(req: Request) {
 
     await connectDB();
 
+    const updateData: Record<string, unknown> = {
+      company,
+      role,
+      status,
+      notes,
+      appliedDate: appliedDate ? new Date(appliedDate) : null,
+      rejectedDate: rejectedDate ? new Date(rejectedDate) : null,
+    };
+
     const updated = await Job.findByIdAndUpdate(
       id,
-      {
-        company,
-        role,
-        status,
-        appliedDate: appliedDate ? new Date(appliedDate) : undefined,
-        notes,
-      },
+      updateData,
       { new: true }
     );
 

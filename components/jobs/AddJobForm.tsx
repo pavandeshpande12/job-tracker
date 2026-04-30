@@ -13,6 +13,7 @@ export default function AddJobForm({ userEmail, refreshJobs }: Props) {
   const [role, setRole] = useState("");
   const [status, setStatus] = useState("Applied");
   const [appliedDate, setAppliedDate] = useState("");
+  const [rejectedDate, setRejectedDate] = useState("");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -28,7 +29,8 @@ export default function AddJobForm({ userEmail, refreshJobs }: Props) {
         company,
         role,
         status,
-        appliedDate,
+        appliedDate: appliedDate || undefined,
+        rejectedDate: rejectedDate || undefined,
         notes,
       }),
     });
@@ -40,6 +42,7 @@ export default function AddJobForm({ userEmail, refreshJobs }: Props) {
       setRole("");
       setStatus("Applied");
       setAppliedDate("");
+      setRejectedDate("");
       setNotes("");
       refreshJobs();
     }
@@ -97,8 +100,8 @@ export default function AddJobForm({ userEmail, refreshJobs }: Props) {
         </div>
       </div>
 
-      {/* Row 2: Status and Date */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, marginTop: 28 }}>
+      {/* Row 2: Status and Dates */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 32, marginTop: 28 }}>
         <div>
           <label style={labelStyle}>Status</label>
           <select
@@ -115,13 +118,24 @@ export default function AddJobForm({ userEmail, refreshJobs }: Props) {
         </div>
 
         <div>
-          <label style={labelStyle}>Applied Date</label>
+          <label style={labelStyle}>Applied Date (optional)</label>
           <input
             type="date"
             style={{ ...inputStyle, colorScheme: "dark" }}
             value={appliedDate}
             onChange={(e) => setAppliedDate(e.target.value)}
-            required
+            onFocus={(e) => e.target.style.borderColor = "#06b6d4"}
+            onBlur={(e) => e.target.style.borderColor = "#475569"}
+          />
+        </div>
+
+        <div>
+          <label style={labelStyle}>Rejected Date (optional)</label>
+          <input
+            type="date"
+            style={{ ...inputStyle, colorScheme: "dark" }}
+            value={rejectedDate}
+            onChange={(e) => setRejectedDate(e.target.value)}
             onFocus={(e) => e.target.style.borderColor = "#06b6d4"}
             onBlur={(e) => e.target.style.borderColor = "#475569"}
           />

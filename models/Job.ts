@@ -5,7 +5,8 @@ export interface IJob extends Document {
   company: string;
   role: string;
   status: string;             // Applied, Interview, Offer, Rejected etc.
-  appliedDate: Date;
+  appliedDate?: Date;
+  rejectedDate?: Date;
   notes?: string;
 }
 
@@ -19,7 +20,8 @@ const JobSchema: Schema<IJob> = new Schema(
       enum: ["Applied", "Online Test", "Interview", "Offer", "Rejected"],
       default: "Applied",
     },
-    appliedDate: { type: Date, required: true },
+    appliedDate: { type: Date },
+    rejectedDate: { type: Date },
     notes: { type: String },
   },
   { timestamps: true }
