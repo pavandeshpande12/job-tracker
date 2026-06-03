@@ -1,26 +1,25 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
+import { getAuthUser } from "@/lib/auth";
 import Job from "@/models/Job";
 
-// GET /api/jobs?email=...
-export async function GET(req: Request) {
+// GET /api/jobs — list jobs for the authenticated user
+export async function GET() {
   try {
-    const { searchParams } = new URL(req.url);
-    const email = searchParams.get("email");
-
-    if (!email) {
+    const user = await getAuthUser();
+    if (!user) {
       return NextResponse.json(
-        { ok: false, message: "email query param required" },
-        { status: 400 }
+        { ok: false, message: "Unauthorized" },
+        { status: 401 }
       );
     }
 
     await connectDB();
-    const jobs = await Job.find({ userEmail: email }).sort({ createdAt: -1 });
+    const jobs = await Job.find({ userEmail: user.email })
+      .sort({ createdAt: -1 });
 
     return NextResponse.json({ ok: true, jobs });
-  } catch (error) {
-    console.error("Jobs GET error:", error);
+  } catch {
     return NextResponse.json(
       { ok: false, message: "Server error" },
       { status: 500 }
@@ -28,34 +27,52 @@ export async function GET(req: Request) {
   }
 }
 
-// POST /api/jobs  (create job)
+// POST /api/jobs — create job for the authenticated user
 export async function POST(req: Request) {
   try {
-    const { userEmail, company, role, status, appliedDate, rejectedDate, notes } =
-      await req.json();
-
-    if (!userEmail || !company || !role) {
+    const user = await getAuthUser();
+    if (!user) {
       return NextResponse.json(
-        { ok: false, message: "userEmail, company, role required" },
+        { ok: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const {
+      company, role, status, appliedDate, rejectedDate,
+      notes, interviewExperience, feedback,
+    } = await req.json();
+
+    if (!company || !role) {
+      return NextResponse.json(
+        { ok: false, message: "company and role are required" },
         { status: 400 }
       );
     }
+
+    const validStatuses = ["Applied", "Online Test", "Interview", "Offer", "Rejected"];
+    const safeStatus = validStatuses.includes(status) ? status : "Applied";
 
     await connectDB();
 
     const job = await Job.create({
-      userEmail,
-      company,
-      role,
-      status: status || "Applied",
+      userEmail: user.email,
+      company: String(company).trim().slice(0, 200),
+      role: String(role).trim().slice(0, 200),
+      status: safeStatus,
       appliedDate: appliedDate ? new Date(appliedDate) : undefined,
       rejectedDate: rejectedDate ? new Date(rejectedDate) : undefined,
-      notes: notes || "",
+      notes: notes ? String(notes).slice(0, 2000) : "",
+      interviewExperience: interviewExperience ? String(interviewExperience).slice(0, 5000) : "",
+      feedback: {
+        whatWentWell: feedback?.whatWentWell ? String(feedback.whatWentWell).slice(0, 2000) : "",
+        whatDidntGoWell: feedback?.whatDidntGoWell ? String(feedback.whatDidntGoWell).slice(0, 2000) : "",
+        lessonsLearned: feedback?.lessonsLearned ? String(feedback.lessonsLearned).slice(0, 2000) : "",
+      },
     });
 
     return NextResponse.json({ ok: true, job }, { status: 201 });
-  } catch (error) {
-    console.error("Jobs POST error:", error);
+  } catch {
     return NextResponse.json(
       { ok: false, message: "Server error" },
       { status: 500 }
@@ -63,10 +80,21 @@ export async function POST(req: Request) {
   }
 }
 
-// PUT /api/jobs  (update by id)
+// PUT /api/jobs — update a job owned by the authenticated user
 export async function PUT(req: Request) {
   try {
-    const { id, company, role, status, appliedDate, rejectedDate, notes } = await req.json();
+    const user = await getAuthUser();
+    if (!user) {
+      return NextResponse.json(
+        { ok: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const {
+      id, company, role, status, appliedDate, rejectedDate,
+      notes, interviewExperience, feedback,
+    } = await req.json();
 
     if (!id) {
       return NextResponse.json(
@@ -75,20 +103,27 @@ export async function PUT(req: Request) {
       );
     }
 
+    const validStatuses = ["Applied", "Online Test", "Interview", "Offer", "Rejected"];
+    const safeStatus = validStatuses.includes(status) ? status : undefined;
+
     await connectDB();
 
-    const updateData: Record<string, unknown> = {
-      company,
-      role,
-      status,
-      notes,
-      appliedDate: appliedDate ? new Date(appliedDate) : null,
-      rejectedDate: rejectedDate ? new Date(rejectedDate) : null,
-    };
-
-    const updated = await Job.findByIdAndUpdate(
-      id,
-      updateData,
+    const updated = await Job.findOneAndUpdate(
+      { _id: id, userEmail: user.email },
+      {
+        company: company ? String(company).trim().slice(0, 200) : undefined,
+        role: role ? String(role).trim().slice(0, 200) : undefined,
+        status: safeStatus,
+        notes: notes != null ? String(notes).slice(0, 2000) : undefined,
+        appliedDate: appliedDate ? new Date(appliedDate) : null,
+        rejectedDate: rejectedDate ? new Date(rejectedDate) : null,
+        interviewExperience: interviewExperience != null ? String(interviewExperience).slice(0, 5000) : "",
+        feedback: feedback ? {
+          whatWentWell: feedback.whatWentWell ? String(feedback.whatWentWell).slice(0, 2000) : "",
+          whatDidntGoWell: feedback.whatDidntGoWell ? String(feedback.whatDidntGoWell).slice(0, 2000) : "",
+          lessonsLearned: feedback.lessonsLearned ? String(feedback.lessonsLearned).slice(0, 2000) : "",
+        } : {},
+      },
       { new: true }
     );
 
@@ -100,8 +135,7 @@ export async function PUT(req: Request) {
     }
 
     return NextResponse.json({ ok: true, job: updated });
-  } catch (error) {
-    console.error("Jobs PUT error:", error);
+  } catch {
     return NextResponse.json(
       { ok: false, message: "Server error" },
       { status: 500 }
@@ -109,9 +143,17 @@ export async function PUT(req: Request) {
   }
 }
 
-// DELETE /api/jobs  (delete by id in body)
+// DELETE /api/jobs — delete a job owned by the authenticated user
 export async function DELETE(req: Request) {
   try {
+    const user = await getAuthUser();
+    if (!user) {
+      return NextResponse.json(
+        { ok: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const { id } = await req.json();
 
     if (!id) {
@@ -123,7 +165,7 @@ export async function DELETE(req: Request) {
 
     await connectDB();
 
-    const result = await Job.deleteOne({ _id: id });
+    const result = await Job.deleteOne({ _id: id, userEmail: user.email });
 
     if (result.deletedCount === 0) {
       return NextResponse.json(
@@ -137,8 +179,7 @@ export async function DELETE(req: Request) {
       message: "Job deleted",
       deletedId: id,
     });
-  } catch (error) {
-    console.error("Jobs DELETE error:", error);
+  } catch {
     return NextResponse.json(
       { ok: false, message: "Server error" },
       { status: 500 }

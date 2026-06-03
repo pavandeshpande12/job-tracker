@@ -1,18 +1,26 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
+export interface IJobFeedback {
+  whatWentWell?: string;
+  whatDidntGoWell?: string;
+  lessonsLearned?: string;
+}
+
 export interface IJob extends Document {
-  userEmail: string;          // who this job belongs to
+  userEmail: string;
   company: string;
   role: string;
-  status: string;             // Applied, Interview, Offer, Rejected etc.
+  status: string;
   appliedDate?: Date;
   rejectedDate?: Date;
   notes?: string;
+  interviewExperience?: string;
+  feedback?: IJobFeedback;
 }
 
 const JobSchema: Schema<IJob> = new Schema(
   {
-    userEmail: { type: String, required: true },
+    userEmail: { type: String, required: true, index: true },
     company: { type: String, required: true },
     role: { type: String, required: true },
     status: {
@@ -23,6 +31,12 @@ const JobSchema: Schema<IJob> = new Schema(
     appliedDate: { type: Date },
     rejectedDate: { type: Date },
     notes: { type: String },
+    interviewExperience: { type: String },
+    feedback: {
+      whatWentWell: { type: String },
+      whatDidntGoWell: { type: String },
+      lessonsLearned: { type: String },
+    },
   },
   { timestamps: true }
 );

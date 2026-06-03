@@ -6,6 +6,7 @@ import { LogoutButton } from "@/components/LogoutButton";
 import AddJobForm from "@/components/jobs/AddJobForm";
 import JobList from "@/components/jobs/JobList";
 import JobCharts from "@/components/charts/JobCharts";
+import ReflectionSummary from "@/components/charts/ReflectionSummary";
 
 type UserInfo = {
   name: string;
@@ -27,13 +28,13 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<JobStats | null>(null);
   const [refresh, setRefresh] = useState(false);
 
-  const fetchStats = async (email: string) => {
+  const fetchStats = async () => {
     try {
-      const res = await fetch(`/api/jobs/stats?email=${encodeURIComponent(email)}`);
+      const res = await fetch("/api/jobs/stats");
       const data = await res.json();
       if (res.ok && data.ok) setStats(data.stats);
-    } catch (e) {
-      console.error("Stats fetch failed:", e);
+    } catch {
+      // stats fetch failed silently
     }
   };
 
@@ -54,7 +55,7 @@ export default function DashboardPage() {
 
       setUser(parsed);
       setLoading(false);
-      fetchStats(parsed.email);
+      fetchStats();
     } catch {
       localStorage.removeItem("jat_user");
       router.replace("/login");
@@ -63,7 +64,7 @@ export default function DashboardPage() {
 
   const refreshJobs = () => {
     setRefresh((prev) => !prev);
-    if (user) fetchStats(user.email);
+    fetchStats();
   };
 
   if (loading || !user) {
@@ -342,15 +343,18 @@ export default function DashboardPage() {
         {/* Charts Section */}
         <JobCharts stats={stats} />
 
+        {/* Reflection Insights */}
+        <ReflectionSummary refreshKey={refresh.toString()} />
+
         {/* Add Job Form Section */}
         <section style={{ marginTop: 64, paddingTop: 48, borderTop: "1px solid #334155" }}>
           <h3 style={{ fontSize: 22, fontWeight: 600, color: "#ffffff", marginBottom: 36 }}>Add New Application</h3>
-          <AddJobForm userEmail={user.email} refreshJobs={refreshJobs} />
+          <AddJobForm refreshJobs={refreshJobs} />
         </section>
 
         {/* Job List Section */}
         <section style={{ marginTop: 64, paddingTop: 48, paddingBottom: 48, borderTop: "1px solid #334155" }}>
-          <JobList userEmail={user.email} refreshJobs={refreshJobs} key={refresh.toString()} />
+          <JobList refreshJobs={refreshJobs} key={refresh.toString()} />
         </section>
       </main>
     </div>

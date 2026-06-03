@@ -2,20 +2,26 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import AutocompleteTextarea from "@/components/ui/AutocompleteTextarea";
 
 interface Props {
-  userEmail: string;
   refreshJobs: () => void;
 }
 
-export default function AddJobForm({ userEmail, refreshJobs }: Props) {
+export default function AddJobForm({ refreshJobs }: Props) {
   const [company, setCompany] = useState("");
   const [role, setRole] = useState("");
   const [status, setStatus] = useState("Applied");
   const [appliedDate, setAppliedDate] = useState("");
   const [rejectedDate, setRejectedDate] = useState("");
   const [notes, setNotes] = useState("");
+  const [interviewExperience, setInterviewExperience] = useState("");
+  const [whatWentWell, setWhatWentWell] = useState("");
+  const [whatDidntGoWell, setWhatDidntGoWell] = useState("");
+  const [lessonsLearned, setLessonsLearned] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const showReflectionFields = ["Interview", "Offer", "Rejected"].includes(status);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,17 +31,18 @@ export default function AddJobForm({ userEmail, refreshJobs }: Props) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        userEmail,
         company,
         role,
         status,
         appliedDate: appliedDate || undefined,
         rejectedDate: rejectedDate || undefined,
         notes,
+        interviewExperience: showReflectionFields ? interviewExperience : "",
+        feedback: showReflectionFields
+          ? { whatWentWell, whatDidntGoWell, lessonsLearned }
+          : {},
       }),
     });
-
-    setLoading(false);
 
     if (res.ok) {
       setCompany("");
@@ -44,8 +51,14 @@ export default function AddJobForm({ userEmail, refreshJobs }: Props) {
       setAppliedDate("");
       setRejectedDate("");
       setNotes("");
+      setInterviewExperience("");
+      setWhatWentWell("");
+      setWhatDidntGoWell("");
+      setLessonsLearned("");
       refreshJobs();
     }
+
+    setLoading(false);
   };
 
   const inputStyle: React.CSSProperties = {
@@ -61,12 +74,31 @@ export default function AddJobForm({ userEmail, refreshJobs }: Props) {
     transition: "all 0.2s",
   };
 
+  const textareaStyle: React.CSSProperties = {
+    ...inputStyle,
+    height: "auto",
+    minHeight: 100,
+    padding: "14px 18px",
+    resize: "vertical" as const,
+    fontFamily: "inherit",
+    width: "100%",
+  };
+
   const labelStyle: React.CSSProperties = {
     display: "block",
     color: "#e2e8f0",
     fontSize: 14,
     fontWeight: 500,
     marginBottom: 10,
+  };
+
+  const sectionHeaderStyle: React.CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 20,
+    paddingBottom: 12,
+    borderBottom: "1px solid rgba(255, 255, 255, 0.06)",
   };
 
   return (
@@ -82,7 +114,7 @@ export default function AddJobForm({ userEmail, refreshJobs }: Props) {
             onChange={(e) => setCompany(e.target.value)}
             required
             onFocus={(e) => e.target.style.borderColor = "#06b6d4"}
-            onBlur={(e) => e.target.style.borderColor = "#475569"}
+            onBlur={(e) => e.target.style.borderColor = "rgba(255, 255, 255, 0.1)"}
           />
         </div>
 
@@ -95,7 +127,7 @@ export default function AddJobForm({ userEmail, refreshJobs }: Props) {
             onChange={(e) => setRole(e.target.value)}
             required
             onFocus={(e) => e.target.style.borderColor = "#06b6d4"}
-            onBlur={(e) => e.target.style.borderColor = "#475569"}
+            onBlur={(e) => e.target.style.borderColor = "rgba(255, 255, 255, 0.1)"}
           />
         </div>
       </div>
@@ -115,6 +147,23 @@ export default function AddJobForm({ userEmail, refreshJobs }: Props) {
             <option value="Offer" style={{ background: "#0f172a" }}>Offer</option>
             <option value="Rejected" style={{ background: "#0f172a" }}>Rejected</option>
           </select>
+          {!showReflectionFields && (
+            <p style={{
+              marginTop: 8,
+              fontSize: 11,
+              color: "#475569",
+              display: "flex",
+              alignItems: "center",
+              gap: 5,
+            }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="16" x2="12" y2="12" />
+                <line x1="12" y1="8" x2="12.01" y2="8" />
+              </svg>
+              Set to Interview, Offer, or Rejected to add reflections
+            </p>
+          )}
         </div>
 
         <div>
@@ -125,7 +174,7 @@ export default function AddJobForm({ userEmail, refreshJobs }: Props) {
             value={appliedDate}
             onChange={(e) => setAppliedDate(e.target.value)}
             onFocus={(e) => e.target.style.borderColor = "#06b6d4"}
-            onBlur={(e) => e.target.style.borderColor = "#475569"}
+            onBlur={(e) => e.target.style.borderColor = "rgba(255, 255, 255, 0.1)"}
           />
         </div>
 
@@ -137,7 +186,7 @@ export default function AddJobForm({ userEmail, refreshJobs }: Props) {
             value={rejectedDate}
             onChange={(e) => setRejectedDate(e.target.value)}
             onFocus={(e) => e.target.style.borderColor = "#06b6d4"}
-            onBlur={(e) => e.target.style.borderColor = "#475569"}
+            onBlur={(e) => e.target.style.borderColor = "rgba(255, 255, 255, 0.1)"}
           />
         </div>
       </div>
@@ -147,15 +196,106 @@ export default function AddJobForm({ userEmail, refreshJobs }: Props) {
         <label style={labelStyle}>Notes (optional)</label>
         <input
           style={inputStyle}
-            placeholder="Additional notes"
+          placeholder="Additional notes"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           onFocus={(e) => e.target.style.borderColor = "#06b6d4"}
-          onBlur={(e) => e.target.style.borderColor = "#475569"}
+          onBlur={(e) => e.target.style.borderColor = "rgba(255, 255, 255, 0.1)"}
         />
       </div>
 
-      {/* Button */}
+      {/* Interview Experience & Reflection — shown only for Interview/Offer/Rejected */}
+      {showReflectionFields && (
+        <>
+          {/* Reveal banner */}
+          <div style={{
+            marginTop: 36,
+            padding: "12px 18px",
+            background: "rgba(129, 140, 248, 0.08)",
+            border: "1px solid rgba(129, 140, 248, 0.2)",
+            borderRadius: 10,
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+          }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#818cf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2L2 7l10 5 10-5-10-5z" />
+              <path d="M2 17l10 5 10-5" />
+              <path d="M2 12l10 5 10-5" />
+            </svg>
+            <span style={{ fontSize: 13, color: "#a5b4fc" }}>
+              Reflection fields unlocked! Record your interview experience and learnings below.
+            </span>
+          </div>
+
+          {/* Interview Experience */}
+          <div style={{ marginTop: 24 }}>
+            <div style={sectionHeaderStyle}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#818cf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+              <h4 style={{ color: "#ffffff", fontSize: 16, fontWeight: 600 }}>Interview Experience (optional)</h4>
+            </div>
+            <AutocompleteTextarea
+              fieldType="interviewExperience"
+              value={interviewExperience}
+              onChange={setInterviewExperience}
+              placeholder="Describe your interview experience — rounds, questions asked, format, difficulty level..."
+              style={textareaStyle}
+              focusBorderColor="#818cf8"
+            />
+          </div>
+
+          {/* Self-Reflection / Feedback */}
+          <div style={{ marginTop: 40 }}>
+            <div style={sectionHeaderStyle}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34d399" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+              <h4 style={{ color: "#ffffff", fontSize: 16, fontWeight: 600 }}>Self-Reflection (optional)</h4>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+              <div>
+                <label style={{ ...labelStyle, color: "#86efac" }}>What went well?</label>
+                <AutocompleteTextarea
+                  fieldType="whatWentWell"
+                  value={whatWentWell}
+                  onChange={setWhatWentWell}
+                  placeholder="Things that went well during the process..."
+                  style={{ ...textareaStyle, minHeight: 80 }}
+                  focusBorderColor="#34d399"
+                />
+              </div>
+              <div>
+                <label style={{ ...labelStyle, color: "#fca5a5" }}>What didn&apos;t go well?</label>
+                <AutocompleteTextarea
+                  fieldType="whatDidntGoWell"
+                  value={whatDidntGoWell}
+                  onChange={setWhatDidntGoWell}
+                  placeholder="Areas where you struggled or felt unprepared..."
+                  style={{ ...textareaStyle, minHeight: 80 }}
+                  focusBorderColor="#fb7185"
+                />
+              </div>
+            </div>
+            <div style={{ marginTop: 24 }}>
+              <label style={{ ...labelStyle, color: "#fde68a" }}>Lessons learned</label>
+              <AutocompleteTextarea
+                fieldType="lessonsLearned"
+                value={lessonsLearned}
+                onChange={setLessonsLearned}
+                placeholder="Key takeaways, things to improve for next time..."
+                style={{ ...textareaStyle, minHeight: 80 }}
+                focusBorderColor="#fbbf24"
+              />
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Submit Button */}
       <div style={{ marginTop: 36, display: "flex", justifyContent: "flex-end" }}>
         <Button
           type="submit"

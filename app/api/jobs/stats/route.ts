@@ -1,43 +1,35 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
+import { getAuthUser } from "@/lib/auth";
 import Job from "@/models/Job";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
-    await connectDB();
-
-    const email = req.nextUrl.searchParams.get("email");
-    if (!email) {
+    const user = await getAuthUser();
+    if (!user) {
       return NextResponse.json(
-        { ok: false, message: "Email required" },
-        { status: 400 }
+        { ok: false, message: "Unauthorized" },
+        { status: 401 }
       );
     }
 
-    const total = await Job.countDocuments({ userEmail: email });
-    const test = await Job.countDocuments({
-      userEmail: email,
-      status: "Online Test",
-    });
-    const interview = await Job.countDocuments({
-      userEmail: email,
-      status: "Interview",
-    });
-    const offer = await Job.countDocuments({
-      userEmail: email,
-      status: "Offer",
-    });
-    const reject = await Job.countDocuments({
-      userEmail: email,
-      status: "Rejected",
-    });
+    await connectDB();
+
+    const email = user.email;
+
+    const [total, test, interview, offer, reject] = await Promise.all([
+      Job.countDocuments({ userEmail: email }),
+      Job.countDocuments({ userEmail: email, status: "Online Test" }),
+      Job.countDocuments({ userEmail: email, status: "Interview" }),
+      Job.countDocuments({ userEmail: email, status: "Offer" }),
+      Job.countDocuments({ userEmail: email, status: "Rejected" }),
+    ]);
 
     return NextResponse.json({
       ok: true,
       stats: { total, test, interview, offer, reject },
     });
-  } catch (error) {
-    console.error("Stats API error:", error);
+  } catch {
     return NextResponse.json(
       { ok: false, message: "Server error" },
       { status: 500 }

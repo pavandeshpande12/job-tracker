@@ -31,6 +31,9 @@ export default function LoginPage() {
 
     if (data.user) {
       localStorage.setItem("jat_user", JSON.stringify(data.user));
+      if (data.token) {
+        localStorage.setItem("jat_token", data.token);
+      }
     }
 
     router.push("/dashboard");

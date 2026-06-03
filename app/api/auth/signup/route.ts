@@ -3,6 +3,8 @@ import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import { hash } from "bcryptjs";
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export async function POST(req: Request) {
   try {
     const { name, email, password } = await req.json();
@@ -14,10 +16,26 @@ export async function POST(req: Request) {
       );
     }
 
+    const trimmedName = String(name).trim().slice(0, 100);
+    const normalizedEmail = String(email).trim().toLowerCase();
+
+    if (!EMAIL_RE.test(normalizedEmail)) {
+      return NextResponse.json(
+        { ok: false, message: "Invalid email address" },
+        { status: 400 }
+      );
+    }
+
+    if (String(password).length < 6) {
+      return NextResponse.json(
+        { ok: false, message: "Password must be at least 6 characters" },
+        { status: 400 }
+      );
+    }
+
     await connectDB();
 
-    // Check if user already exists
-    const existing = await User.findOne({ email });
+    const existing = await User.findOne({ email: normalizedEmail });
     if (existing) {
       return NextResponse.json(
         { ok: false, message: "Email already registered" },
@@ -25,11 +43,11 @@ export async function POST(req: Request) {
       );
     }
 
-    const hashedPassword = await hash(password, 10);
+    const hashedPassword = await hash(String(password), 12);
 
     await User.create({
-      name,
-      email,
+      name: trimmedName,
+      email: normalizedEmail,
       password: hashedPassword,
     });
 
@@ -37,8 +55,7 @@ export async function POST(req: Request) {
       { ok: true, message: "User created successfully" },
       { status: 201 }
     );
-  } catch (error) {
-    console.error("Signup error:", error);
+  } catch {
     return NextResponse.json(
       { ok: false, message: "Server error" },
       { status: 500 }

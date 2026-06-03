@@ -7,6 +7,8 @@ export function LogoutButton() {
 
   const handleLogout = () => {
     localStorage.removeItem("jat_user");
+    localStorage.removeItem("jat_token");
+    document.cookie = "jat_token=; path=/; max-age=0";
     router.push("/login");
   };
 

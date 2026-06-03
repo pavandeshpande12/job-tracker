@@ -8,7 +8,7 @@ export default function Home() {
 
   useEffect(() => {
     // Check if user is logged in
-    const user = localStorage.getItem("user");
+    const user = localStorage.getItem("jat_user");
     if (user) {
       router.push("/dashboard");
     } else {
