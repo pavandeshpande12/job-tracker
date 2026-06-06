@@ -236,6 +236,6 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ---
 
-## License
+---
 
-MIT - Pavan Deshpande
+© 2026 Job Tracker · Built by Pavan Deshpande
