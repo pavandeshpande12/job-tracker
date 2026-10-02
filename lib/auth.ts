@@ -1,8 +1,12 @@
 import { cookies } from "next/headers";
 import crypto from "crypto";
 
-const SECRET = process.env.JWT_SECRET || process.env.MONGODB_URI;
-if (!SECRET) throw new Error("JWT_SECRET or MONGODB_URI must be set");
+function getSecret(): string {
+  const s = process.env.JWT_SECRET || process.env.MONGODB_URI;
+  if (!s) throw new Error("JWT_SECRET or MONGODB_URI must be set");
+  return s;
+}
+const SECRET = getSecret();
 const TOKEN_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 interface TokenPayload {
