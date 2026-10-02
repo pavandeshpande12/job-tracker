@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Tracker - DEEP DIVE: Every File & Line Explained</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            color: #1e293b;
+            background: #f8fafc;
+            padding: 40px 20px;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+
+        h1 {
+            font-size: 2.5em;
+            color: #0f172a;
+            text-align: center;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #06b6d4, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle { text-align: center; color: #64748b; margin-bottom: 50px; font-size: 1.1em; }
+
+        h2 {
+            font-size: 1.8em;
+            color: #0f172a;
+            margin: 60px 0 25px 0;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #06b6d4, #3b82f6);
+            color: white;
+            border-radius: 10px;
+        }
+        h3 {
+            font-size: 1.4em;
+            color: #1e40af;
+            margin: 35px 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        h4 {
+            font-size: 1.1em;
+            color: #7c3aed;
+            margin: 25px 0 10px 0;
+        }
+
+        p { margin-bottom: 15px; color: #475569; }
+
+        .file-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .file-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #06b6d4, #3b82f6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .file-name {
+            font-family: 'Consolas', monospace;
+            font-size: 1.1em;
+            color: #0f172a;
+            font-weight: 600;
+        }
+        .file-path {
+            font-size: 0.85em;
+            color: #64748b;
+        }
+
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.85em;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+        code {
+            background: #e0f2fe;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9em;
+            color: #0369a1;
+        }
+
+        .concept-box {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-left: 5px solid #f59e0b;
+            padding: 20px;
+            border-radius: 0 10px 10px 0;
+            margin: 20px 0;
+        }
+        .concept-box h5 {
+            color: #92400e;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .concept-box p { color: #78350f; margin-bottom: 8px; }
+
+        .info-box {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            border-left: 5px solid #3b82f6;
+            padding: 20px;
+            border-radius: 0 10px 10px 0;
+            margin: 20px 0;
+        }
+        .info-box h5 { color: #1e40af; margin-bottom: 10px; }
+        .info-box p { color: #1e3a8a; }
+
+        .success-box {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            border-left: 5px solid #10b981;
+            padding: 20px;
+            border-radius: 0 10px 10px 0;
+            margin: 20px 0;
+        }
+        .success-box h5 { color: #065f46; margin-bottom: 10px; }
+        .success-box p { color: #064e3b; }
+
+        .line-explain {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .line-num {
+            background: #06b6d4;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-right: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.95em;
+        }
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border: 1px solid #e2e8f0;
+        }
+        th {
+            background: #0f172a;
+            color: white;
+        }
+        tr:nth-child(even) { background: #f8fafc; }
+
+        .toc {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .toc h3 { margin-top: 0; border: none; }
+        .toc ul { list-style: none; }
+        .toc li { padding: 10px 0; border-bottom: 1px dashed #e2e8f0; }
+        .toc a { color: #0f172a; text-decoration: none; font-weight: 500; }
+        .toc a:hover { color: #06b6d4; }
+
+        @media print {
+            .page-break { page-break-before: always; }
+            body { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>DEEP DIVE: Every File & Line Explained</h1>
+        <p class="subtitle">A complete breakdown of your Job Tracker project for absolute beginners</p>
+
+        <div class="toc">
+            <h3>Table of Contents</h3>
+            <ul>
+                <li><a href="#config">1. Configuration Files (The Settings)</a></li>
+                <li><a href="#lib">2. lib/ Folder (The Toolbox)</a></li>
+                <li><a href="#models">3. models/ Folder (Database Blueprints)</a></li>
+                <li><a href="#layout">4. Layout & Global Styles (The Foundation)</a></li>
+                <li><a href="#pages">5. Pages (app/ folder)</a></li>
+                <li><a href="#api">6. API Routes (The Backend Brain)</a></li>
+                <li><a href="#components">7. Components (Reusable LEGO Blocks)</a></li>
+                <li><a href="#concepts">8. All Concepts Used (The Learning Part)</a></li>
+            </ul>
+        </div>
+
+        <!-- ==================== SECTION 1: CONFIG FILES ==================== -->
+        <h2 id="config">1. Configuration Files (The Settings)</h2>
+
+        <div class="file-card">
+            <div class="file-header">
+                <div class="file-icon">{ }</div>
+                <div>
+                    <div class="file-name">package.json</div>
+                    <div class="file-path">Root folder</div>
+                </div>
+            </div>
+
+            <p><strong>What is it?</strong> This is like a <em>shopping list</em> for your project. It tells Node.js what tools and libraries your project needs.</p>
+
+            <pre>{
+  "name": "job-app-tracker",        // Project name
+  "version": "0.1.0",               // Version number
+  "private": true,                  // Can't be published to npm
+
+  "scripts": {                      // Commands you can run
+    "dev": "next dev",              // npm run dev → starts development server
+    "build": "next build",          // npm run build → creates production build
+    "start": "next start",          // npm start → runs production build
+    "lint": "eslint"                // npm run lint → checks code quality
+  },
+
+  "dependencies": {                 // Libraries your app NEEDS to run
+    "react": "19.2.0",              // The UI library
+    "next": "16.0.7",               // The framework
+    "mongoose": "^9.0.0",           // Database connection
+    "bcryptjs": "^3.0.3",           // Password hashing
+    "recharts": "^3.5.1",           // Charts library
+    // ... and more
+  },
+
+  "devDependencies": {              // Only needed during development
+    "typescript": "^5",             // Type checking
+    "tailwindcss": "^4",            // CSS framework
+    "eslint": "^9"                  // Code quality checker
+  }
+}</pre>
+
+            <div class="concept-box">
+                <h5>Concept: Dependencies vs DevDependencies</h5>
+                <p><strong>dependencies:</strong> Libraries your app needs to RUN (like React, MongoDB)</p>
+                <p><strong>devDependencies:</strong> Libraries only needed while CODING (like TypeScript, ESLint)</p>
+                <p>When you deploy to production, devDependencies aren't included - saves space!</p>
+            </div>
+
+            <h4>Key Libraries Explained:</h4>
+            <table>
+                <tr><th>Library</th><th>What It Does</th><th>Example Use</th></tr>
+                <tr><td>react</td><td>Builds user interfaces with components</td><td>Creating buttons, forms, pages</td></tr>
+                <tr><td>next</td><td>Framework that adds routing, API, and more to React</td><td>Creating pages, API routes</td></tr>
+                <tr><td>mongoose</td><td>Connects to MongoDB and defines data models</td><td>Saving/reading users and jobs</td></tr>
+                <tr><td>bcryptjs</td><td>Hashes passwords securely</td><td>Storing passwords safely</td></tr>
+                <tr><td>recharts</td><td>Creates charts and graphs</td><td>Bar charts, pie charts on dashboard</td></tr>
+                <tr><td>tailwindcss</td><td>Utility-first CSS framework</td><td>Quick styling with classes</td></tr>
+                <tr><td>typescript</td><td>Adds types to JavaScript</td><td>Catching errors before runtime</td></tr>
+            </table>
+        </div>
+
+        <div class="file-card">
+            <div class="file-header">
+                <div class="file-icon">TS</div>
+                <div>
+                    <div class="file-name">tsconfig.json</div>
+                    <div class="file-path">Root folder</div>
+                </div>
+            </div>
+
+            <p><strong>What is it?</strong> Settings for TypeScript - the "spell checker" for your code.</p>
+
+            <pre>{
+  "compilerOptions": {
+    "target": "ES2017",           // What version of JavaScript to output
+    "lib": ["dom", "esnext"],     // What APIs are available (browser, modern JS)
+    "strict": true,               // Enable strict type checking
+    "jsx": "react-jsx",           // How to handle JSX (React code)
+    "paths": {
+      "@/*": ["./*"]              // Shortcut: @/lib/db means ./lib/db
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx"],  // Check all .ts and .tsx files
+  "exclude": ["node_modules"]          // Don't check node_modules
+}</pre>
+
+            <div class="concept-box">
+                <h5>Concept: TypeScript</h5>
+                <p>TypeScript is JavaScript with <strong>types</strong>. Types tell you what kind of data a variable holds.</p>
+                <p><strong>JavaScript:</strong> <code>let name = "Pavan"</code> (could be anything later)</p>
+                <p><strong>TypeScript:</strong> <code>let name: string = "Pavan"</code> (MUST be a string)</p>
+                <p>This catches bugs BEFORE you run your code!</p>
+            </div>
+
+            <div class="line-explain">
+                <span class="line-num">Line 21-22</span>
+                <strong><code>"@/*": ["./*"]</code></strong> - This is a path alias. Instead of writing:
+                <br><code>import { connectDB } from "../../lib/db"</code>
+                <br>You can write:
+                <br><code>import { connectDB } from "@/lib/db"</code>
+                <br>Much cleaner!
+            </div>
+        </div>
+
+        <!-- ==================== SECTION 2: LIB FOLDER ==================== -->
+        <h2 id="lib" class="page-break">2. lib/ Folder (The Toolbox)</h2>
+        <p>This folder contains <strong>helper functions</strong> - small utilities used across your app.</p>
+
+        <div class="file-card">
+            <div class="file-header">
+                <div class="file-icon">DB</div>
+                <div>
+                    <div class="file-name">db.ts</div>
+                    <div class="file-path">lib/db.ts</div>
+                </div>
+            </div>
+
+            <p><strong>Purpose:</strong> Connects your app to MongoDB database.</p>
+
+            <pre>// Line 1: Import mongoose library
+import mongoose from "mongoose";
+
+// Line 3: Get database URL from environment variables
+const MONGODB_URI = process.env.MONGODB_URI as string;
+
+// Lines 5-7: Safety check - crash if no database URL
+if (!MONGODB_URI) {
+  throw new Error("Please define MONGODB_URI in .env.local");
+}
+
+// Lines 9-13: Caching trick for Next.js
+let cached = (global as any).mongoose;
+if (!cached) {
+  cached = (global as any).mongoose = { conn: null, promise: null };
+}
+
+// Lines 15-26: The main function
+export async function connectDB() {
+  // If already connected, return existing connection
+  if (cached.conn) {
+    return cached.conn;
+  }
+
+  // If not connecting yet, start connecting
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(MONGODB_URI).then((mongoose) => mongoose);
+  }
+
+  // Wait for connection and return it
+  cached.conn = await cached.promise;
+  return cached.conn;
+}</pre>
+
+            <h4>Line-by-Line Breakdown:</h4>
+
+            <div class="line-explain">
+                <span class="line-num">Line 1</span>
+                <code>import mongoose from "mongoose";</code>
+                <br>This brings in the mongoose library. Mongoose is like a translator between JavaScript and MongoDB.
+            </div>
+
+            <div class="line-explain">
+                <span class="line-num">Line 3</span>
+                <code>const MONGODB_URI = process.env.MONGODB_URI as string;</code>
+                <br><strong>process.env</strong> = Environment variables (secret settings stored outside code)
+                <br><strong>MONGODB_URI</strong> = Your database connection URL (like mongodb+srv://user:pass@cluster.mongodb.net/dbname)
+                <br><strong>as string</strong> = TypeScript: "I promise this is a string"
+            </div>
+
+            <div class="line-explain">
+                <span class="line-num">Lines 9-13</span>
+                <code>let cached = (global as any).mongoose;</code>
+                <br><strong>Why cache?</strong> In Next.js, code can run multiple times. Without caching, you'd create a NEW database connection every time = bad!
+                <br><strong>global</strong> = A special object that persists across all code runs
+                <br>We store the connection here so we only connect ONCE.
+            </div>
+
+            <div class="line-explain">
+                <span class="line-num">Line 15</span>
+                <code>export async function connectDB()</code>
+                <br><strong>export</strong> = Other files can use this function
+                <br><strong>async</strong> = This function does something that takes time (database connection)
+                <br><strong>function connectDB()</strong> = The function name
+            </div>
+
+            <div class="concept-box">
+                <h5>Concept: Async/Await</h5>
+                <p>Some operations take time (like connecting to a database). JavaScript doesn't wait - it moves on.</p>
+                <p><strong>async</strong> marks a function as "contains waiting operations"</p>
+                <p><strong>await</strong> means "wait here until this finishes"</p>
+                <pre>// WITHOUT await:
+const data = fetch("/api/data");  // data = Promise (not actual data!)
+
+// WITH await:
+const data = await fetch("/api/data");  // data = actual data!</pre>
+            </div>
+
+            <div class="concept-box">
+                <h5>Concept: Environment Variables</h5>
+                <p>Secrets (like database passwords) should NEVER be in your code. Instead:</p>
+                <p>1. Create a <code>.env.local</code> file</p>
+                <p>2. Add: <code>MONGODB_URI=mongodb+srv://user:password@cluster.mongodb.net/mydb</code></p>
+                <p>3. Access in code: <code>process.env.MONGODB_URI</code></p>
+                <p>The .env.local file is in .gitignore, so it's never uploaded to GitHub!</p>
+            </div>
+        </div>
+
+        <div class="file-card">
+            <div class="file-header">
+                <div class="file-icon">U</div>
+                <div>
+                    <div class="file-name">utils.ts</div>
+                    <div class="file-path">lib/utils.ts</div>
+                </div>
+            </div>
+
+            <p><strong>Purpose:</strong> Utility function for combining CSS class names.</p>
+
+            <pre>// Line 1: Import helper libraries
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+// Lines 4-6: The cn() function
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}</pre>
+
+            <div class="line-explain">
+                <span class="line-num">Line 4</span>
+                <code>export function cn(...inputs: ClassValue[])</code>
+                <br><strong>...</strong> = "Rest operator" - accepts ANY number of arguments
+                <br><strong>ClassValue[]</strong> = TypeScript type saying "array of CSS class values"
+            </div>
+
+            <div class="info-box">
+                <h5>What does cn() do?</h5>
+                <p>It smartly combines CSS classes. Example:</p>
+                <p><code>cn("text-red-500", "text-blue-500")</code> → <code>"text-blue-500"</code></p>
+                <p>Instead of both classes conflicting, it keeps the last one. Smart!</p>
+            </div>
+        </div>
+
+        <!-- ==================== SECTION 3: MODELS ==================== -->
+        <h2 id="models" class="page-break">3. models/ Folder (Database Blueprints)</h2>
+        <p>Models define the <strong>shape of your data</strong> - what fields each record has.</p>
+
+        <div class="file-card">
+            <div class="file-header">
+                <div class="file-icon">U</div>
+                <div>
+                    <div class="file-name">User.ts</div>
+                    <div class="file-path">models/User.ts</div>
+                </div>
+            </div>
+
+            <p><strong>Purpose:</strong> Defines what a "User" looks like in the database.</p>
+
+            <pre>// Line 1: Import mongoose tools
+import mongoose, { Schema, Document, Model } from "mongoose";
+
+// Lines 3-7: TypeScript interface - defines User shape
+export interface IUser extends Document {
+  name: string;
+  email: string;
+  password: string;
+}
+
+// Lines 9-16: The actual database schema
+const UserSchema: Schema&lt;IUser&gt; = new Schema(
+  {
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+  },
+  { timestamps: true }  // Automatically adds createdAt and updatedAt
+);
+
+// Lines 18-20: Create the model (or use existing one)
+const User: Model&lt;IUser&gt; =
+  mongoose.models.User || mongoose.model&lt;IUser&gt;("User", UserSchema);
+
+export default User;</pre>
+
+            <h4>Line-by-Line Breakdown:</h4>
+
+            <div class="line-explain">
+                <span class="line-num">Lines 3-7</span>
+                <code>export interface IUser extends Document { ... }</code>
+                <br><strong>interface</strong> = TypeScript way of defining a shape/contract
+                <br><strong>extends Document</strong> = IUser also has all MongoDB document properties (like _id)
+                <br>This tells TypeScript: "A User must have name, email, and password, all strings"
+            </div>
+
+            <div class="line-explain">
+                <span class="line-num">Lines 9-16</span>
+                <code>const UserSchema = new Schema({ ... })</code>
+                <br><strong>Schema</strong> = The actual database structure (MongoDB needs this)
+                <br><strong>required: true</strong> = This field MUST be provided
+                <br><strong>unique: true</strong> = No two users can have same email
+                <br><strong>timestamps: true</strong> = Automatically track when created/updated
+            </div>
+
+            <div class="line-explain">
+                <span class="line-num">Lines 19-20</span>
+                <code>mongoose.models.User || mongoose.model("User", UserSchema)</code>
+                <br>This is a safety trick for Next.js:
+                <br>• First, check if User model already exists
+                <br>• If yes, use the existing one
+                <br>• If no, create a new one
+                <br>Prevents "model already defined" errors!
+            </div>
+
+            <div class="concept-box">
+                <h5>Concept: Interface vs Schema</h5>
+                <p><strong>Interface (TypeScript):</strong> Tells YOUR CODE what shape data should have. Compile-time check.</p>
+                <p><strong>Schema (Mongoose):</strong> Tells the DATABASE what shape data should have. Runtime check.</p>
+                <p>You need BOTH - one for TypeScript, one for MongoDB!</p>
+            </div>
+        </div>
+
+        <div class="file-card">
+            <div class="file-header">
+                <div class="file-icon">J</div>
+                <div>
+                    <div class="file-name">Job.ts</div>
+                    <div class="file-path">models/Job.ts</div>
+                </div>
+            </div>
+
+            <p><strong>Purpose:</strong> Defines what a "Job Application" looks like.</p>
+
+            <pre>import mongoose, { Schema, Document, Model } from "mongoose";
+
+// TypeScript interface
+export interface IJob extends Document {
+  userEmail: string;          // Who owns this job
+  company: string;
+  role: string;
+  status: string;             // Applied, Interview, Offer, etc.
+  appliedDate: Date;
+  notes?: string;             // Optional (note the ?)
+}
+
+// MongoDB Schema
+const JobSchema: Schema&lt;IJob&gt; = new Schema(
+  {
+    userEmail: { type: String, required: true },
+    company: { type: String, required: true },
+    role: { type: String, required: true },
+    status: {
+      type: String,
+      enum: ["Applied", "Online Test", "Interview", "Offer", "Rejected"],
+      default: "Applied",
+    },
+    appliedDate: { type: Date, required: true },
+    notes: { type: String },  // Not required
+  },
+  { timestamps: true }
+);
+
+const Job: Model&lt;IJob&gt; =
+  mongoose.models.Job || mongoose.model&lt;IJob&gt;("Job", JobSchema);
+
+export default Job;</pre>
+
+            <div class="line-explain">
+                <span class="line-num">Line 10</span>
+                <code>notes?: string;</code>
+                <br>The <strong>?</strong> means this field is OPTIONAL. Users don't have to provide notes.
+            </div>
+
+            <div class="line-explain">
+                <span class="line-num">Lines 19-22</span>
+                <code>enum: ["Applied", "Online Test", ...]</code>
+                <br><strong>enum</strong> = "enumeration" - a list of ALLOWED values
+                <br>If someone tries to set status to "Banana", MongoDB will reject it!
+            </div>
+
+            <div class="line-explain">
+                <span class="line-num">Line 21</span>
+                <code>default: "Applied"</code>
+                <br>If no status is provided, automatically set it to "Applied"
+            </div>
+        </div>
+
+        <!-- ==================== SECTION 4: LAYOUT ==================== -->
+        <h2 id="layout" class="page-break">4. Layout & Global Styles (The Foundation)</h2>
+
+        <div class="file-card">
+            <div class="file-header">
+                <div class="file-icon">L</div>
+                <div>
+                    <div class="file-name">layout.tsx</div>
+                    <div class="file-path">app/layout.tsx</div>
+                </div>
+            </div>
+
+            <p><strong>Purpose:</strong> The "wrapper" around ALL pages. Every page gets wrapped in this.</p>
+
+            <pre>// Line 1: Import types from Next.js
+import type { Metadata } from "next";
+
+// Line 2: Import Google Fonts
+import { Geist, Geist_Mono } from "next/font/google";
+
+// Line 3: Import global styles
+import "./globals.css";
+
+// Lines 5-8: Configure the Geist font
+const geistSans = Geist({
+  variable: "--font-geist-sans",  // CSS variable name
+  subsets: ["latin"],              // Only load Latin characters
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+// Lines 15-18: Page metadata (shows in browser tab)
+export const metadata: Metadata = {
+  title: "Job Tracker",
+  description: "Track and manage your job applications",
+};
+
+// Lines 20-32: The actual layout component
+export default function RootLayout({
+  children,                         // The page content
+}: {
+  children: React.ReactNode;        // TypeScript: children can be any React content
+}) {
+  return (
+    &lt;html lang="en"&gt;
+      &lt;body className={`${geistSans.variable} ${geistMono.variable} antialiased`}&gt;
+        {children}                  {/* ← The actual page goes here */}
+      &lt;/body&gt;
+    &lt;/html&gt;
+  );
+}</pre>
+
+            <div class="concept-box">
+                <h5>Concept: Layout in Next.js</h5>
+                <p>A layout wraps around pages. Think of it like a picture frame:</p>
+                <pre>┌─────────────────────────┐
+│      LAYOUT             │
+│  ┌───────────────────┐  │
+│  │                   │  │
+│  │   PAGE CONTENT    │  │
+│  │   (children)      │  │
+│  │                   │  │
+│  └───────────────────┘  │
+└─────────────────────────┘</pre>
+                <p>The layout (html, body tags, fonts) stays the same. Only the page content changes!</p>
+            </div>
+
+            <div class="line-explain">
+                <span class="line-num">Lines 20-23</span>
+                <code>{ children }: { children: React.ReactNode }</code>
+                <br><strong>children</strong> = Whatever is inside this component
+                <br><strong>React.ReactNode</strong> = TypeScript type meaning "any valid React content"
+                <br>This is called <strong>destructuring</strong> - extracting values from an object
+            </div>
+        </div>
+
+        <div class="file-card">
+            <div class="file-header">
+                <div class="file-icon">CSS</div>
+                <div>
+                    <div class="file-name">globals.css</div>
+                    <div class="file-path">app/globals.css</div>
+                </div>
+            </div>
+
+            <p><strong>Purpose:</strong> Styles that apply to EVERY page in your app.</p>
+
+            <pre>/* Import Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* Import animation library */
+@import "tw-animate-css";
+
+/* Tailwind CSS directives */
+@tailwind base;        /* Reset default browser styles */
+@tailwind components;  /* Tailwind component classes */
+@tailwind utilities;   /* Tailwind utility classes (text-red-500, etc.) */
+
+/* Global font */
+* {
+  font-family: 'Inter', sans-serif;
+  box-sizing: border-box;  /* Padding included in width calculations */
+}
+
+/* The animated background */
+.app-background {
+  position: fixed;      /* Stays in place when scrolling */
+  inset: 0;             /* Shorthand for top:0 right:0 bottom:0 left:0 */
+  z-index: 0;           /* Behind everything else */
+  background: linear-gradient(135deg, #0c1222 0%, #0a0f1a 50%, #080b14 100%);
+  overflow: hidden;
+}
+
+/* Floating gradient blobs */
+.gradient-orb {
+  position: absolute;
+  border-radius: 50%;          /* Makes it a circle */
+  filter: blur(100px);         /* Soft, blurry edges */
+  opacity: 0.7;
+  animation: float 20s ease-in-out infinite;  /* Continuous floating */
+}
+
+/* Animation keyframes */
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(40px, -40px) scale(1.1); }
+  50% { transform: translate(-30px, 30px) scale(0.9); }
+  75% { transform: translate(30px, 15px) scale(1.05); }
+}
+
+/* Glass effect for cards */
+.glass-card {
+  background: rgba(15, 23, 42, 0.6);    /* Semi-transparent dark */
+  backdrop-filter: blur(20px);           /* Blurs what's behind */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}</pre>
+
+            <div class="concept-box">
+                <h5>Concept: CSS Variables</h5>
+                <p>CSS variables let you define values once and reuse them:</p>
+                <pre>:root {
+  --primary-color: #06b6d4;  /* Define */
+}
+
+.button {
+  background: var(--primary-color);  /* Use */
+}</pre>
+                <p>Change the variable once → changes everywhere!</p>
+            </div>
+
+            <div class="concept-box">
+                <h5>Concept: Glassmorphism</h5>
+                <p>The trendy "frosted glass" effect used in modern UI:</p>
+                <p>1. <code>background: rgba(15, 23, 42, 0.6)</code> - Semi-transparent background</p>
+                <p>2. <code>backdrop-filter: blur(20px)</code> - Blurs what's behind it</p>
+                <p>3. <code>border: 1px solid rgba(255,255,255,0.1)</code> - Subtle light border</p>
+                <p>Result: Cards that look like frosted glass!</p>
+            </div>
+        </div>
+
+        <!-- ==================== SECTION 5: PAGES ==================== -->
+        <h2 id="pages" class="page-break">5. Pages (app/ folder)</h2>
+
+        <div class="file-card">
+            <div class="file-header">
+                <div class="file-icon">🏠</div>
+                <div>
+                    <div class="file-name">page.tsx</div>
+                    <div class="file-path">app/page.tsx (Home Page - /)</div>
+                </div>
+            </div>
+
+            <pre>"use client";  // This is a Client Component (runs in browser)
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+export default function Home() {
+  const router = useRouter();  // Hook to navigate between pages
+
+  useEffect(() => {
+    // Check if user is logged in
+    const user = localStorage.getItem("user");
+
+    if (user) {
+      router.push("/dashboard");  // Logged in → go to dashboard
+    } else {
+      router.push("/login");      // Not logged in → go to login
+    }
+  }, [router]);  // Run when router changes
+
+  // Show loading while redirecting
+  return (
+    &lt;div&gt;
+      &lt;div className="animate-spin"&gt;&lt;/div&gt;
+      &lt;p&gt;Loading...&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+
+            <div class="concept-box">
+                <h5>Concept: "use client" Directive</h5>
+                <p>Next.js has two types of components:</p>
+                <p><strong>Server Components:</strong> Run on the server, can't use browser APIs</p>
+                <p><strong>Client Components:</strong> Run in the browser, CAN use localStorage, useState, etc.</p>
+                <p>Add <code>"use client"</code> at the top to make it a client component!</p>
+            </div>
+
+            <div class="concept-box">
+                <h5>Concept: useEffect Hook</h5>
+                <p><code>useEffect</code> runs code AFTER the component renders:</p>
+                <pre>useEffect(() => {
+  // This code runs after render
+  console.log("Component mounted!");
+}, []);  // Empty array = run only once</pre>
+                <p><strong>Common uses:</strong></p>
+                <p>• Fetching data from an API</p>
+                <p>• Setting up event listeners</p>
+                <p>• Checking localStorage</p>
+            </div>
+
+            <div class="concept-box">
+                <h5>Concept: useRouter Hook</h5>
+                <p><code>useRouter</code> lets you navigate between pages programmatically:</p>
+                <pre>const router = useRouter();
+
+router.push("/dashboard");    // Go to dashboard
+router.push("/login");        // Go to login
+router.replace("/home");      // Go to home (can't go back)
+router.back();                // Go to previous page</pre>
+            </div>
+        </div>
+
+        <div class="file-card">
+            <div class="file-header">
+                <div class="file-icon">🔐</div>
+                <div>
+                    <div class="file-name">page.tsx</div>
+                    <div class="file-path">app/signup/page.tsx (Signup Page)</div>
+                </div>
+            </div>
+
+            <pre>"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+export default function SignupPage() {
+  const router = useRouter();
+
+  // State variables - hold form data
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  // Form submission handler
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();  // Stop page from refreshing
+    setLoading(true);
+    setError("");
+
+    // Send data to API
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.message || "Something went wrong");
+      setLoading(false);
+      return;
+    }
+
+    setSuccess("Account created! Redirecting to login...");
+    setTimeout(() => router.push("/login"), 1500);
+  };
+
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      &lt;input value={name} onChange={(e) => setName(e.target.value)} /&gt;
+      &lt;input value={email} onChange={(e) => setEmail(e.target.value)} /&gt;
+      &lt;input value={password} onChange={(e) => setPassword(e.target.value)} /&gt;
+      &lt;button type="submit"&gt;Create Account&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</pre>
+
+            <div class="concept-box">
+                <h5>Concept: useState Hook</h5>
+                <p><code>useState</code> creates a variable that can CHANGE and causes re-render:</p>
+                <pre>const [count, setCount] = useState(0);
+//     ↑        ↑                  ↑
+//  value    setter            initial value
+
+// To update:
+setCount(5);           // Set to 5
+setCount(prev => prev + 1);  // Add 1 to previous</pre>
+                <p>When state changes, React re-renders the component!</p>
+            </div>
+
+            <div class="concept-box">
+                <h5>Concept: Controlled Inputs</h5>
+                <p>In React, form inputs are "controlled" - React controls their value:</p>
+                <pre>&lt;input
+  value={email}                           // Display this value
+  onChange={(e) => setEmail(e.target.value)}  // Update when typed
+/&gt;</pre>
+                <p><strong>e</strong> = the event object</p>
+                <p><strong>e.target</strong> = the input element</p>
+                <p><strong>e.target.value</strong> = what the user typed</p>
+            </div>
+
+            <div class="concept-box">
+                <h5>Concept: e.preventDefault()</h5>
+                <p>By default, forms REFRESH the page when submitted. We don't want that!</p>
+                <p><code>e.preventDefault()</code> stops the default behavior, so we can handle it with JavaScript.</p>
+            </div>
+
+            <div class="concept-box">
+                <h5>Concept: fetch() API</h5>
+                <p><code>fetch</code> sends HTTP requests to servers:</p>
+                <pre>const res = await fetch("/api/auth/signup", {
+  method: "POST",                              // HTTP method
+  headers: { "Content-Type": "application/json" },  // We're sending JSON
+  body: JSON.stringify({ name, email }),       // The actual data
+});
+
+const data = await res.json();  // Parse the response</pre>
+            </div>
+        </div>
+
+        <!-- ==================== SECTION 6: API ROUTES ==================== -->
+        <h2 id="api" class="page-break">6. API Routes (The Backend Brain)</h2>
+
+        <div class="file-card">
+            <div class="file-header">
+                <div class="file-icon">API</div>
+                <div>
+                    <div class="file-name">route.ts</div>
+                    <div class="file-path">app/api/auth/signup/route.ts</div>
+                </div>
+            </div>
+
+            <p><strong>Purpose:</strong> Handles user registration.</p>
+
+            <pre>import { NextResponse } from "next/server";
+import { connectDB } from "@/lib/db";
+import User from "@/models/User";
+import { hash } from "bcryptjs";
+
+// POST /api/auth/signup
+export async function POST(req: Request) {
+  try {
+    // 1. Get data from request
+    const { name, email, password } = await req.json();
+
+    // 2. Validate - all fields required
+    if (!name || !email || !password) {
+      return NextResponse.json(
+        { ok: false, message: "All fields are required" },
+        { status: 400 }  // Bad Request
+      );
+    }
+
+    // 3. Connect to database
+    await connectDB();
+
+    // 4. Check if email already exists
+    const existing = await User.findOne({ email });
+    if (existing) {
+      return NextResponse.json(
+        { ok: false, message: "Email already registered" },
+        { status: 400 }
+      );
+    }
+
+    // 5. Hash the password (NEVER store plain text!)
+    const hashedPassword = await hash(password, 10);
+    // "password123" → "$2a$10$N9qo8uLOickgx2ZMRZoMy..."
+
+    // 6. Create user in database
+    await User.create({
+      name,
+      email,
+      password: hashedPassword,
+    });
+
+    // 7. Return success
+    return NextResponse.json(
+      { ok: true, message: "User created successfully" },
+      { status: 201 }  // Created
+    );
+  } catch (error) {
+    console.error("Signup error:", error);
+    return NextResponse.json(
+      { ok: false, message: "Server error" },
+      { status: 500 }  // Internal Server Error
+    );
+  }
+}</pre>
+
+            <div class="concept-box">
+                <h5>Concept: Password Hashing</h5>
+                <p><strong>NEVER</strong> store passwords as plain text! If your database gets hacked, all passwords are exposed.</p>
+                <p><strong>Hashing:</strong> A one-way transformation that can't be reversed.</p>
+                <pre>"password123" → hash() → "$2a$10$N9qo8uLOickgx2ZMRZoMy..."</pre>
+                <p>Even if hackers get the hash, they can't get the original password!</p>
+                <p>The <strong>10</strong> in <code>hash(password, 10)</code> is the "salt rounds" - how many times to scramble. More = more secure but slower.</p>
+            </div>
+
+            <div class="concept-box">
+                <h5>Concept: HTTP Status Codes</h5>
+                <table>
+                    <tr><th>Code</th><th>Meaning</th><th>When to use</th></tr>
+                    <tr><td>200</td><td>OK</td><td>Request successful</td></tr>
+                    <tr><td>201</td><td>Created</td><td>Something was created (new user, new job)</td></tr>
+                    <tr><td>400</td><td>Bad Request</td><td>User sent invalid data</td></tr>
+                    <tr><td>401</td><td>Unauthorized</td><td>User not logged in</td></tr>
+                    <tr><td>404</td><td>Not Found</td><td>Requested resource doesn't exist</td></tr>
+                    <tr><td>500</td><td>Server Error</td><td>Something broke on the server</td></tr>
+                </table>
+            </div>
+
+            <div class="concept-box">
+                <h5>Concept: Try-Catch Error Handling</h5>
+                <p>Wrap risky code in try-catch to handle errors gracefully:</p>
+                <pre>try {
+  // Risky code that might fail
+  await connectDB();
+  await User.create({ ... });
+} catch (error) {
+  // If anything above fails, this runs
+  console.error("Something went wrong:", error);
+  return NextResponse.json({ message: "Server error" }, { status: 500 });
+}</pre>
+                <p>Without try-catch, an error would crash your entire server!</p>
+            </div>
+        </div>
+
+        <div class="file-card">
+            <div class="file-header">
+                <div class="file-icon">API</div>
+                <div>
+                    <div class="file-name">route.ts</div>
+                    <div class="file-path">app/api/jobs/route.ts</div>
+                </div>
+            </div>
+
+            <p><strong>Purpose:</strong> Handles all job operations (Create, Read, Update, Delete).</p>
+
+            <pre>// GET - Fetch all jobs for a user
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const email = searchParams.get("email");  // Get ?email=... from URL
+
+  await connectDB();
+  const jobs = await Job.find({ userEmail: email }).sort({ createdAt: -1 });
+  // find() = get all matching documents
+  // sort({ createdAt: -1 }) = newest first
+
+  return NextResponse.json({ ok: true, jobs });
+}
+
+// POST - Create a new job
+export async function POST(req: Request) {
+  const { userEmail, company, role, status, appliedDate, notes } = await req.json();
+
+  await connectDB();
+  const job = await Job.create({
+    userEmail,
+    company,
+    role,
+    status: status || "Applied",  // Default to "Applied"
+    appliedDate: new Date(appliedDate),
+    notes: notes || "",
+  });
+
+  return NextResponse.json({ ok: true, job }, { status: 201 });
+}
+
+// PUT - Update a job
+export async function PUT(req: Request) {
+  const { id, company, role, status, appliedDate, notes } = await req.json();
+
+  await connectDB();
+  const updated = await Job.findByIdAndUpdate(
+    id,                            // Find by this ID
+    { company, role, status, ... },  // Update with these values
+    { new: true }                  // Return the updated document
+  );
+
+  return NextResponse.json({ ok: true, job: updated });
+}
+
+// DELETE - Remove a job
+export async function DELETE(req: Request) {
+  const { id } = await req.json();
+
+  await connectDB();
+  await Job.deleteOne({ _id: id });
+
+  return NextResponse.json({ ok: true, message: "Job deleted" });
+}</pre>
+
+            <div class="concept-box">
+                <h5>Concept: CRUD Operations</h5>
+                <p>CRUD = the 4 basic database operations:</p>
+                <table>
+                    <tr><th>Letter</th><th>Operation</th><th>HTTP Method</th><th>Mongoose Method</th></tr>
+                    <tr><td>C</td><td>Create</td><td>POST</td><td>Model.create()</td></tr>
+                    <tr><td>R</td><td>Read</td><td>GET</td><td>Model.find() / findOne()</td></tr>
+                    <tr><td>U</td><td>Update</td><td>PUT/PATCH</td><td>Model.findByIdAndUpdate()</td></tr>
+                    <tr><td>D</td><td>Delete</td><td>DELETE</td><td>Model.deleteOne()</td></tr>
+                </table>
+            </div>
+
+            <div class="concept-box">
+                <h5>Concept: Query Parameters</h5>
+                <p>Data can be sent in the URL after a <code>?</code>:</p>
+                <pre>/api/jobs?email=pavan@email.com&status=Interview
+            ↑              ↑
+         parameter      parameter</pre>
+                <p>To read them:</p>
+                <pre>const { searchParams } = new URL(req.url);
+const email = searchParams.get("email");  // "pavan@email.com"</pre>
+            </div>
+        </div>
+
+        <!-- ==================== SECTION 7: COMPONENTS ==================== -->
+        <h2 id="components" class="page-break">7. Components (Reusable LEGO Blocks)</h2>
+
+        <div class="file-card">
+            <div class="file-header">
+                <div class="file-icon">📊</div>
+                <div>
+                    <div class="file-name">JobCharts.tsx</div>
+                    <div class="file-path">components/charts/JobCharts.tsx</div>
+                </div>
+            </div>
+
+            <pre>"use client";
+
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip,
+  ResponsiveContainer, PieChart, Pie, Cell,
+} from "recharts";
+
+// Define what props this component accepts
+type Props = {
+  stats: {
+    total: number;
+    test: number;
+    interview: number;
+    offer: number;
+    reject: number;
+  } | null;  // Can be null if no data yet
+};
+
+const COLORS = ["#818cf8", "#60a5fa", "#34d399", "#fb7185"];
+
+export default function JobCharts({ stats }: Props) {
+  // Guard clause - don't render if no stats
+  if (!stats) return null;
+
+  // Transform data for charts
+  const pieData = [
+    { name: "Online Test", value: stats.test },
+    { name: "Interview", value: stats.interview },
+    // ...
+  ].filter(item => item.value > 0);  // Remove zeros
+
+  return (
+    &lt;section&gt;
+      {/* Bar Chart */}
+      &lt;ResponsiveContainer width="100%" height={200}&gt;
+        &lt;BarChart data={barData}&gt;
+          &lt;XAxis dataKey="name" /&gt;
+          &lt;YAxis /&gt;
+          &lt;Tooltip /&gt;
+          &lt;Bar dataKey="value" radius={[6, 6, 0, 0]}&gt;
+            {barData.map((entry, index) => (
+              &lt;Cell key={index} fill={entry.fill} /&gt;
+            ))}
+          &lt;/Bar&gt;
+        &lt;/BarChart&gt;
+      &lt;/ResponsiveContainer&gt;
+
+      {/* Pie Chart */}
+      &lt;PieChart&gt;
+        &lt;Pie data={pieData} dataKey="value" outerRadius={70}&gt;
+          {pieData.map((_, index) => (
+            &lt;Cell key={index} fill={COLORS[index % COLORS.length]} /&gt;
+          ))}
+        &lt;/Pie&gt;
+      &lt;/PieChart&gt;
+    &lt;/section&gt;
+  );
+}</pre>
+
+            <div class="concept-box">
+                <h5>Concept: Props</h5>
+                <p>Props are how you pass data INTO a component:</p>
+                <pre>// Parent component
+&lt;JobCharts stats={myStats} /&gt;
+
+// Child component receives it
+function JobCharts({ stats }: Props) {
+  console.log(stats.total);  // Access the data
+}</pre>
+                <p>Think of props like function arguments!</p>
+            </div>
+
+            <div class="concept-box">
+                <h5>Concept: Mapping Arrays to Components</h5>
+                <p>To render multiple items, use <code>.map()</code>:</p>
+                <pre>const fruits = ["Apple", "Banana", "Orange"];
+
+// Renders 3 &lt;li&gt; elements
+{fruits.map((fruit, index) => (
+  &lt;li key={index}&gt;{fruit}&lt;/li&gt;
+))}
+
+// Result:
+// &lt;li&gt;Apple&lt;/li&gt;
+// &lt;li&gt;Banana&lt;/li&gt;
+// &lt;li&gt;Orange&lt;/li&gt;</pre>
+                <p>The <code>key</code> prop helps React track which items changed.</p>
+            </div>
+        </div>
+
+        <div class="file-card">
+            <div class="file-header">
+                <div class="file-icon">📋</div>
+                <div>
+                    <div class="file-name">JobList.tsx</div>
+                    <div class="file-path">components/jobs/JobList.tsx</div>
+                </div>
+            </div>
+
+            <pre>// Multiple state variables for different purposes
+const [jobs, setJobs] = useState&lt;JobType[]&gt;([]);        // Array of jobs
+const [editingJob, setEditingJob] = useState&lt;JobType | null&gt;(null);  // Currently editing
+const [search, setSearch] = useState("");               // Search input
+const [filterStatus, setFilterStatus] = useState("All"); // Status filter
+
+// Fetch jobs from API
+const fetchJobs = async () => {
+  const res = await fetch(`/api/jobs?email=${userEmail}`);
+  const data = await res.json();
+  if (res.ok) setJobs(data.jobs);
+};
+
+// Delete a job
+const handleDelete = async (id: string) => {
+  if (!confirm("Delete this job?")) return;  // Ask for confirmation
+
+  await fetch("/api/jobs", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
+  });
+
+  await fetchJobs();  // Refresh the list
+};
+
+// Filter logic
+const filteredJobs = jobs.filter((job) => {
+  const matchesSearch =
+    job.company.toLowerCase().includes(search.toLowerCase()) ||
+    job.role.toLowerCase().includes(search.toLowerCase());
+
+  const matchesStatus =
+    filterStatus === "All" ? true : job.status === filterStatus;
+
+  return matchesSearch && matchesStatus;
+});
+
+// Fetch on component mount
+useEffect(() => {
+  fetchJobs();
+}, []);</pre>
+
+            <div class="concept-box">
+                <h5>Concept: Array filter()</h5>
+                <p><code>filter()</code> creates a new array with only items that pass a test:</p>
+                <pre>const numbers = [1, 2, 3, 4, 5];
+
+const evens = numbers.filter(n => n % 2 === 0);
+// evens = [2, 4]
+
+const big = numbers.filter(n => n > 3);
+// big = [4, 5]</pre>
+                <p>In JobList, we filter jobs based on search and status!</p>
+            </div>
+
+            <div class="concept-box">
+                <h5>Concept: Conditional Rendering</h5>
+                <p>Show different content based on conditions:</p>
+                <pre>// Method 1: Ternary operator
+{isLoading ? &lt;Spinner /&gt; : &lt;Content /&gt;}
+
+// Method 2: Logical AND
+{error && &lt;ErrorMessage /&gt;}  // Only shows if error exists
+
+// Method 3: Guard clause (return early)
+if (!data) return &lt;Loading /&gt;;
+return &lt;Content data={data} /&gt;;</pre>
+            </div>
+        </div>
+
+        <!-- ==================== SECTION 8: ALL CONCEPTS ==================== -->
+        <h2 id="concepts" class="page-break">8. All Concepts Used (The Learning Part)</h2>
+
+        <h3>JavaScript/TypeScript Concepts</h3>
+        <table>
+            <tr><th>Concept</th><th>What It Does</th><th>Example</th></tr>
+            <tr>
+                <td>const/let</td>
+                <td>Declare variables</td>
+                <td><code>const name = "Pavan";</code></td>
+            </tr>
+            <tr>
+                <td>Arrow Functions</td>
+                <td>Shorter function syntax</td>
+                <td><code>const add = (a, b) => a + b;</code></td>
+            </tr>
+            <tr>
+                <td>Template Literals</td>
+                <td>String with variables</td>
+                <td><code>`Hello ${name}`</code></td>
+            </tr>
+            <tr>
+                <td>Destructuring</td>
+                <td>Extract values from objects/arrays</td>
+                <td><code>const { name, email } = user;</code></td>
+            </tr>
+            <tr>
+                <td>Spread Operator</td>
+                <td>Copy/merge objects/arrays</td>
+                <td><code>const newObj = { ...oldObj, newProp: 1 };</code></td>
+            </tr>
+            <tr>
+                <td>Optional Chaining</td>
+                <td>Safe property access</td>
+                <td><code>user?.name</code> (returns undefined if user is null)</td>
+            </tr>
+            <tr>
+                <td>Nullish Coalescing</td>
+                <td>Default values</td>
+                <td><code>value ?? "default"</code></td>
+            </tr>
+            <tr>
+                <td>async/await</td>
+                <td>Handle promises</td>
+                <td><code>const data = await fetch(url);</code></td>
+            </tr>
+            <tr>
+                <td>try/catch</td>
+                <td>Error handling</td>
+                <td><code>try { ... } catch (e) { ... }</code></td>
+            </tr>
+            <tr>
+                <td>Array.map()</td>
+                <td>Transform each item</td>
+                <td><code>arr.map(x => x * 2)</code></td>
+            </tr>
+            <tr>
+                <td>Array.filter()</td>
+                <td>Keep items that pass test</td>
+                <td><code>arr.filter(x => x > 0)</code></td>
+            </tr>
+            <tr>
+                <td>Types/Interfaces</td>
+                <td>Define data shapes</td>
+                <td><code>interface User { name: string }</code></td>
+            </tr>
+        </table>
+
+        <h3>React Concepts</h3>
+        <table>
+            <tr><th>Concept</th><th>What It Does</th><th>Example</th></tr>
+            <tr>
+                <td>Components</td>
+                <td>Reusable UI pieces</td>
+                <td><code>function Button() { return &lt;button&gt;Click&lt;/button&gt; }</code></td>
+            </tr>
+            <tr>
+                <td>JSX</td>
+                <td>HTML in JavaScript</td>
+                <td><code>&lt;div className="box"&gt;Hello&lt;/div&gt;</code></td>
+            </tr>
+            <tr>
+                <td>Props</td>
+                <td>Pass data to components</td>
+                <td><code>&lt;Button text="Click me" /&gt;</code></td>
+            </tr>
+            <tr>
+                <td>useState</td>
+                <td>Component state</td>
+                <td><code>const [count, setCount] = useState(0);</code></td>
+            </tr>
+            <tr>
+                <td>useEffect</td>
+                <td>Side effects</td>
+                <td><code>useEffect(() => { fetchData() }, []);</code></td>
+            </tr>
+            <tr>
+                <td>useRouter</td>
+                <td>Navigation</td>
+                <td><code>router.push("/dashboard");</code></td>
+            </tr>
+            <tr>
+                <td>Controlled Inputs</td>
+                <td>React controls form inputs</td>
+                <td><code>&lt;input value={text} onChange={e => setText(e.target.value)} /&gt;</code></td>
+            </tr>
+            <tr>
+                <td>Conditional Rendering</td>
+                <td>Show/hide based on condition</td>
+                <td><code>{isLoading ? "Loading..." : &lt;Data /&gt;}</code></td>
+            </tr>
+            <tr>
+                <td>Lists & Keys</td>
+                <td>Render arrays</td>
+                <td><code>{items.map(item => &lt;Item key={item.id} /&gt;)}</code></td>
+            </tr>
+        </table>
+
+        <h3>Next.js Concepts</h3>
+        <table>
+            <tr><th>Concept</th><th>What It Does</th></tr>
+            <tr>
+                <td>App Router</td>
+                <td>File-based routing - folders become URLs</td>
+            </tr>
+            <tr>
+                <td>page.tsx</td>
+                <td>The main component for a route</td>
+            </tr>
+            <tr>
+                <td>layout.tsx</td>
+                <td>Wraps pages with common UI</td>
+            </tr>
+            <tr>
+                <td>API Routes</td>
+                <td>Backend endpoints in /app/api/</td>
+            </tr>
+            <tr>
+                <td>"use client"</td>
+                <td>Makes component run in browser</td>
+            </tr>
+            <tr>
+                <td>Server Components</td>
+                <td>Components that run on server (default)</td>
+            </tr>
+        </table>
+
+        <h3>Database Concepts</h3>
+        <table>
+            <tr><th>Concept</th><th>What It Does</th></tr>
+            <tr>
+                <td>MongoDB</td>
+                <td>NoSQL database - stores data as documents (like JSON)</td>
+            </tr>
+            <tr>
+                <td>Mongoose</td>
+                <td>ODM - lets you define schemas and interact with MongoDB</td>
+            </tr>
+            <tr>
+                <td>Schema</td>
+                <td>Defines the structure of a document</td>
+            </tr>
+            <tr>
+                <td>Model</td>
+                <td>JavaScript class for interacting with a collection</td>
+            </tr>
+            <tr>
+                <td>CRUD</td>
+                <td>Create, Read, Update, Delete operations</td>
+            </tr>
+        </table>
+
+        <h3>Security Concepts</h3>
+        <table>
+            <tr><th>Concept</th><th>Why It Matters</th></tr>
+            <tr>
+                <td>Password Hashing</td>
+                <td>Stores passwords securely - can't be reversed</td>
+            </tr>
+            <tr>
+                <td>Environment Variables</td>
+                <td>Keeps secrets out of code</td>
+            </tr>
+            <tr>
+                <td>Input Validation</td>
+                <td>Checks user input before processing</td>
+            </tr>
+        </table>
+
+        <div class="success-box" style="margin-top: 50px;">
+            <h5>You Made It!</h5>
+            <p>You now understand every file and concept in your Job Tracker project. This is real-world full-stack development!</p>
+            <p><strong>Next steps:</strong></p>
+            <p>1. Try modifying something small and see what happens</p>
+            <p>2. Add a new feature (maybe job categories?)</p>
+            <p>3. Break something on purpose and learn to fix it</p>
+            <p>4. Read the official docs: React, Next.js, MongoDB</p>
+        </div>
+
+        <div style="text-align: center; margin-top: 60px; padding-top: 30px; border-top: 2px solid #e2e8f0; color: #64748b;">
+            <p><strong>Job Tracker - Deep Dive Guide</strong></p>
+            <p>Created for Pavan Deshpande</p>
+            <p style="font-size: 0.9em;">Generated with Claude Code</p>
+        </div>
+    </div>
+</body>
+</html>

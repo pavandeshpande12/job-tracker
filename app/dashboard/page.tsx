@@ -2,11 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "motion/react";
 import { LogoutButton } from "@/components/LogoutButton";
 import AddJobForm from "@/components/jobs/AddJobForm";
+import Modal from "@/components/ui/Modal";
+import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
 import JobList from "@/components/jobs/JobList";
 import JobCharts from "@/components/charts/JobCharts";
 import ReflectionSummary from "@/components/charts/ReflectionSummary";
+import Timeline from "@/components/charts/Timeline";
 
 type UserInfo = {
   name: string;
@@ -21,12 +25,80 @@ type JobStats = {
   reject: number;
 };
 
+const STAT_CARDS = [
+  {
+    key: "total",
+    label: "Total Applied",
+    color: "#a1a1a1",
+    numColor: "#fafafa",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a1a1a1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+        <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+      </svg>
+    ),
+  },
+  {
+    key: "test",
+    label: "Online Test",
+    color: "#a78bfa",
+    numColor: "#a78bfa",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+        <line x1="8" y1="21" x2="16" y2="21" />
+        <line x1="12" y1="17" x2="12" y2="21" />
+      </svg>
+    ),
+  },
+  {
+    key: "interview",
+    label: "Interview",
+    color: "#60a5fa",
+    numColor: "#60a5fa",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+      </svg>
+    ),
+  },
+  {
+    key: "offer",
+    label: "Offers",
+    color: "#4ade80",
+    numColor: "#4ade80",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+        <polyline points="22 4 12 14.01 9 11.01" />
+      </svg>
+    ),
+  },
+  {
+    key: "reject",
+    label: "Rejected",
+    color: "#f87171",
+    numColor: "#f87171",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="15" y1="9" x2="9" y2="15" />
+        <line x1="9" y1="9" x2="15" y2="15" />
+      </svg>
+    ),
+  },
+] as const;
+
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<JobStats | null>(null);
   const [refresh, setRefresh] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const fetchStats = async () => {
     try {
@@ -69,29 +141,24 @@ export default function DashboardPage() {
 
   if (loading || !user) {
     return (
-      <div style={{ 
+      <div style={{
         position: "fixed",
         inset: 0,
-        background: "transparent",
+        background: "#0a0a0a",
         display: "flex",
         alignItems: "center",
         justifyContent: "center"
       }}>
-        <div className="app-background">
-          <div className="gradient-orb gradient-orb-1" />
-          <div className="gradient-orb gradient-orb-2" />
-          <div className="gradient-orb gradient-orb-3" />
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, position: "relative", zIndex: 1 }}>
-          <div style={{ 
-            width: 48, 
-            height: 48, 
-            border: "3px solid rgba(255,255,255,0.1)",
-            borderTopColor: "#06b6d4",
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+          <div style={{
+            width: 36,
+            height: 36,
+            border: "2px solid #262626",
+            borderTopColor: "#fafafa",
             borderRadius: "50%",
             animation: "spin 1s linear infinite"
           }} />
-          <span style={{ color: "#94a3b8", fontSize: 14 }}>Loading your dashboard...</span>
+          <span style={{ color: "#525252", fontSize: 13 }}>Loading your dashboard...</span>
         </div>
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
@@ -99,264 +166,232 @@ export default function DashboardPage() {
   }
 
   return (
-    <div style={{ 
+    <div style={{
       minHeight: "100vh",
       width: "100%",
-      background: "transparent",
-      position: "relative"
+      background: "#0a0a0a",
     }}>
-      {/* Animated Background */}
-      <div className="app-background">
-        <div className="gradient-orb gradient-orb-1" />
-        <div className="gradient-orb gradient-orb-2" />
-        <div className="gradient-orb gradient-orb-3" />
-        <div className="grid-overlay" />
-        <div className="noise-overlay" />
-      </div>
-
       {/* Header */}
-      <header style={{ 
-        position: "sticky",
-        top: 0,
-        zIndex: 50,
-        width: "100%",
-        background: "rgba(12, 18, 34, 0.4)",
-        backdropFilter: "blur(16px)",
-        borderBottom: "1px solid rgba(255, 255, 255, 0.1)"
-      }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 24px" }}>
+      <motion.header
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 50,
+          width: "100%",
+          background: "rgba(10, 10, 10, 0.8)",
+          backdropFilter: "blur(12px)",
+          borderBottom: "1px solid #1e1e1e"
+        }}
+      >
+        <div className="header-inner">
           <div style={{ display: "flex", alignItems: "center" }}>
-            <h1 style={{ fontSize: 24, fontWeight: 700, color: "#ffffff", letterSpacing: "-0.5px" }}>
+            <h1 style={{ fontSize: 20, fontWeight: 700, color: "#fafafa", letterSpacing: "-0.5px" }}>
               Job Tracker
             </h1>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div 
-              style={{ 
-                position: "relative",
-                display: "flex", 
-                alignItems: "center", 
-                gap: 8, 
-                padding: "5px 12px 5px 5px", 
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "5px 12px 5px 5px",
                 borderRadius: 50,
-                background: "rgba(255, 255, 255, 0.05)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                cursor: "pointer",
-                transition: "all 0.2s"
+                background: "#141414",
+                border: "1px solid #1e1e1e",
+                cursor: "default",
               }}
-              className="user-pill"
             >
-              <div style={{ 
-                width: 26, 
-                height: 26, 
-                background: "linear-gradient(135deg, #06b6d4, #8b5cf6)",
+              <div style={{
+                width: 24,
+                height: 24,
+                background: "#262626",
                 borderRadius: "50%",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center"
               }}>
-                <span style={{ color: "#ffffff", fontWeight: 600, fontSize: 11 }}>{user.name.charAt(0).toUpperCase()}</span>
+                <span style={{ color: "#a1a1a1", fontWeight: 600, fontSize: 11 }}>{user.name.charAt(0).toUpperCase()}</span>
               </div>
-              <span style={{ color: "#ffffff", fontWeight: 500, fontSize: 13 }}>{user.name}</span>
-              
-              {/* Tooltip */}
-              <div className="user-tooltip glass-card" style={{
-                position: "absolute",
-                top: "calc(100% + 8px)",
-                right: 0,
-                borderRadius: 12,
-                padding: "12px 16px",
-                minWidth: 200,
-                opacity: 0,
-                visibility: "hidden",
-                transform: "translateY(-4px)",
-                transition: "all 0.2s",
-                zIndex: 100
-              }}>
-                <p style={{ color: "#94a3b8", fontSize: 11, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Signed in as</p>
-                <p style={{ color: "#ffffff", fontWeight: 600, fontSize: 14, marginBottom: 4 }}>{user.name}</p>
-                <p style={{ color: "#64748b", fontSize: 13 }}>{user.email}</p>
-              </div>
+              <span style={{ color: "#a1a1a1", fontWeight: 500, fontSize: 13 }}>{user.name}</span>
             </div>
             <LogoutButton />
-            
-            <style>{`
-              .user-pill:hover { background: rgba(255, 255, 255, 0.1) !important; border-color: rgba(255, 255, 255, 0.15) !important; }
-              .user-pill:hover .user-tooltip { opacity: 1 !important; visibility: visible !important; transform: translateY(0) !important; }
-            `}</style>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Main Content */}
-      <main style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 24px", position: "relative", zIndex: 10 }}>
+      <main className="main-content">
         {/* Welcome Section */}
-        <section style={{ marginBottom: 40 }}>
-          <h2 style={{ fontSize: 32, fontWeight: 700, color: "#ffffff", marginBottom: 8 }}>
-            Welcome back, {user.name.split(" ")[0]}! 👋
-          </h2>
-          <p style={{ color: "#94a3b8", fontSize: 16 }}>
-            Track your job applications and stay organized in your job search.
-          </p>
-        </section>
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          style={{ marginBottom: 40 }}
+        >
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
+            <div>
+              <h2 style={{ fontSize: 28, fontWeight: 700, color: "#fafafa", marginBottom: 6, letterSpacing: "-0.5px" }}>
+                Welcome back, {user.name.split(" ")[0]}
+              </h2>
+              <p style={{ color: "#525252", fontSize: 14 }}>
+                Track your job applications and stay organized.
+              </p>
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setShowAddModal(true)}
+              className="add-application-btn"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              Add Application
+            </motion.button>
+          </div>
+        </motion.section>
 
         {/* Stats Cards */}
         <section style={{ marginBottom: 40 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-            <h3 style={{ fontSize: 20, fontWeight: 600, color: "#ffffff" }}>Application Overview</h3>
-            <span style={{ color: "#64748b", fontSize: 12, textTransform: "uppercase", letterSpacing: "1px" }}>Real-time stats</span>
-          </div>
-          
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
-            {/* Total Card */}
-            <div className="glass-card" style={{ 
-              borderRadius: 16,
-              padding: 20,
-              position: "relative",
-              overflow: "hidden"
-            }}>
-              <div style={{ 
-                width: 44, 
-                height: 44, 
-                background: "rgba(148, 163, 184, 0.15)",
-                borderRadius: 12,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                marginBottom: 12
-              }}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
-                </svg>
-              </div>
-              <p style={{ color: "#94a3b8", fontSize: 13, fontWeight: 500, marginBottom: 4 }}>Total Applied</p>
-              <p style={{ color: "#ffffff", fontSize: 36, fontWeight: 700 }}>{stats?.total ?? 0}</p>
-            </div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
+            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}
+          >
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: "#fafafa" }}>Overview</h3>
+          </motion.div>
 
-            {/* Online Test Card */}
-            <div className="glass-card" style={{ 
-              borderRadius: 16,
-              padding: 20,
-              borderColor: "rgba(99, 102, 241, 0.3)"
-            }}>
-              <div style={{ 
-                width: 44, 
-                height: 44, 
-                background: "rgba(99, 102, 241, 0.2)",
-                borderRadius: 12,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                marginBottom: 12
-              }}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#818cf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-                  <line x1="8" y1="21" x2="16" y2="21" />
-                  <line x1="12" y1="17" x2="12" y2="21" />
-                </svg>
+          <AnimatePresence mode="wait">
+            {!stats ? (
+              <motion.div
+                key="skeleton"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}
+              >
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} style={{ background: "#111111", border: "1px solid #1e1e1e", borderRadius: 10, padding: 20 }}>
+                    <div className="skeleton" style={{ width: 36, height: 36, borderRadius: 8, marginBottom: 12 }} />
+                    <div className="skeleton" style={{ width: 70, height: 12, borderRadius: 4, marginBottom: 8 }} />
+                    <div className="skeleton" style={{ width: 40, height: 28, borderRadius: 6 }} />
+                  </div>
+                ))}
+              </motion.div>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}>
+                {STAT_CARDS.map((card, i) => (
+                  <motion.div
+                    key={card.key}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      duration: 0.35,
+                      delay: 0.1 + i * 0.06,
+                      ease: [0.25, 0.46, 0.45, 0.94],
+                    }}
+                    whileHover={{
+                      y: -2,
+                      transition: { duration: 0.15 },
+                    }}
+                    style={{
+                      background: "#111111",
+                      border: "1px solid #1e1e1e",
+                      borderRadius: 10,
+                      padding: 20,
+                      cursor: "default",
+                    }}
+                  >
+                    <div style={{
+                      width: 36,
+                      height: 36,
+                      background: "#171717",
+                      borderRadius: 8,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginBottom: 12
+                    }}>
+                      {card.icon}
+                    </div>
+                    <p style={{ color: "#525252", fontSize: 12, fontWeight: 500, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.5px" }}>{card.label}</p>
+                    <AnimatedCounter
+                      value={stats[card.key as keyof JobStats]}
+                      style={{ color: card.numColor, fontSize: 32, fontWeight: 700, display: "block" }}
+                    />
+                  </motion.div>
+                ))}
               </div>
-              <p style={{ color: "#94a3b8", fontSize: 13, fontWeight: 500, marginBottom: 4 }}>Online Test</p>
-              <p style={{ color: "#818cf8", fontSize: 36, fontWeight: 700 }}>{stats?.test ?? 0}</p>
-            </div>
-
-            {/* Interview Card */}
-            <div className="glass-card" style={{ 
-              borderRadius: 16,
-              padding: 20,
-              borderColor: "rgba(59, 130, 246, 0.3)"
-            }}>
-              <div style={{ 
-                width: 44, 
-                height: 44, 
-                background: "rgba(59, 130, 246, 0.2)",
-                borderRadius: 12,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                marginBottom: 12
-              }}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                  <circle cx="9" cy="7" r="4" />
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                </svg>
-              </div>
-              <p style={{ color: "#94a3b8", fontSize: 13, fontWeight: 500, marginBottom: 4 }}>Interview</p>
-              <p style={{ color: "#60a5fa", fontSize: 36, fontWeight: 700 }}>{stats?.interview ?? 0}</p>
-            </div>
-
-            {/* Offer Card */}
-            <div className="glass-card" style={{ 
-              borderRadius: 16,
-              padding: 20,
-              borderColor: "rgba(34, 197, 94, 0.3)"
-            }}>
-              <div style={{ 
-                width: 44, 
-                height: 44, 
-                background: "rgba(34, 197, 94, 0.2)",
-                borderRadius: 12,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                marginBottom: 12
-              }}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                  <polyline points="22 4 12 14.01 9 11.01" />
-                </svg>
-              </div>
-              <p style={{ color: "#94a3b8", fontSize: 13, fontWeight: 500, marginBottom: 4 }}>Offers</p>
-              <p style={{ color: "#4ade80", fontSize: 36, fontWeight: 700 }}>{stats?.offer ?? 0}</p>
-            </div>
-
-            {/* Rejected Card */}
-            <div className="glass-card" style={{ 
-              borderRadius: 16,
-              padding: 20,
-              borderColor: "rgba(239, 68, 68, 0.3)"
-            }}>
-              <div style={{ 
-                width: 44, 
-                height: 44, 
-                background: "rgba(239, 68, 68, 0.2)",
-                borderRadius: 12,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                marginBottom: 12
-              }}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="15" y1="9" x2="9" y2="15" />
-                  <line x1="9" y1="9" x2="15" y2="15" />
-                </svg>
-              </div>
-              <p style={{ color: "#94a3b8", fontSize: 13, fontWeight: 500, marginBottom: 4 }}>Rejected</p>
-              <p style={{ color: "#f87171", fontSize: 36, fontWeight: 700 }}>{stats?.reject ?? 0}</p>
-            </div>
-          </div>
+            )}
+          </AnimatePresence>
         </section>
 
         {/* Charts Section */}
-        <JobCharts stats={stats} />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+        >
+          <JobCharts stats={stats} />
+        </motion.div>
 
-        {/* Reflection Insights */}
-        <ReflectionSummary refreshKey={refresh.toString()} />
-
-        {/* Add Job Form Section */}
-        <section style={{ marginTop: 64, paddingTop: 48, borderTop: "1px solid #334155" }}>
-          <h3 style={{ fontSize: 22, fontWeight: 600, color: "#ffffff", marginBottom: 36 }}>Add New Application</h3>
-          <AddJobForm refreshJobs={refreshJobs} />
-        </section>
+        {/* Timeline */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+        >
+          <Timeline refreshKey={refresh.toString()} />
+        </motion.div>
 
         {/* Job List Section */}
-        <section style={{ marginTop: 64, paddingTop: 48, paddingBottom: 48, borderTop: "1px solid #334155" }}>
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.7 }}
+          style={{ marginTop: 48, paddingBottom: 48 }}
+        >
           <JobList refreshJobs={refreshJobs} key={refresh.toString()} />
-        </section>
+        </motion.section>
+
+        {/* Reflection Insights */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
+        >
+          <ReflectionSummary refreshKey={refresh.toString()} />
+        </motion.div>
+
       </main>
+
+      {/* Add Job Modal */}
+      <Modal isOpen={showAddModal} onClose={() => setShowAddModal(false)} title="Add New Application">
+        <AddJobForm refreshJobs={refreshJobs} onClose={() => setShowAddModal(false)} />
+      </Modal>
+
+      {/* Floating Action Button */}
+      <motion.button
+        className="fab-add"
+        onClick={() => setShowAddModal(true)}
+        aria-label="Add application"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.9 }}
+      >
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+      </motion.button>
     </div>
   );
 }

@@ -121,7 +121,7 @@ export default function AutocompleteTextarea({
   placeholder,
   fieldType,
   style,
-  focusBorderColor = "#06b6d4",
+  focusBorderColor = "#404040",
 }: Props) {
   const [focused, setFocused] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -219,7 +219,7 @@ export default function AutocompleteTextarea({
           if (focusBorderColor) e.target.style.borderColor = focusBorderColor;
         }}
         onBlur={(e) => {
-          e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+          e.target.style.borderColor = "#262626";
         }}
       />
 
@@ -231,28 +231,27 @@ export default function AutocompleteTextarea({
             left: 0,
             right: 0,
             top: "calc(100% + 4px)",
-            background: "rgba(15, 23, 42, 0.98)",
-            border: "1px solid rgba(255, 255, 255, 0.12)",
-            borderRadius: 10,
+            background: "#141414",
+            border: "1px solid #262626",
+            borderRadius: 8,
             overflow: "hidden",
             zIndex: 60,
-            backdropFilter: "blur(12px)",
-            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.5)",
+            boxShadow: "0 4px 16px rgba(0, 0, 0, 0.5)",
           }}
         >
           <div
             style={{
               padding: "6px 12px",
-              borderBottom: "1px solid rgba(255, 255, 255, 0.06)",
+              borderBottom: "1px solid #1e1e1e",
               display: "flex",
               alignItems: "center",
               gap: 6,
             }}
           >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#525252" strokeWidth="2">
               <polyline points="9 18 15 12 9 6" />
             </svg>
-            <span style={{ fontSize: 11, color: "#64748b", fontWeight: 500 }}>
+            <span style={{ fontSize: 11, color: "#525252", fontWeight: 500 }}>
               Press Tab to accept
             </span>
           </div>
@@ -264,7 +263,7 @@ export default function AutocompleteTextarea({
                 padding: "10px 14px",
                 cursor: "pointer",
                 fontSize: 13,
-                color: idx === selectedIndex ? "#ffffff" : "#94a3b8",
+                color: idx === selectedIndex ? "#fafafa" : "#737373",
                 background:
                   idx === selectedIndex
                     ? `${focusBorderColor}20`
@@ -294,7 +293,7 @@ export default function AutocompleteTextarea({
             alignItems: "center",
           }}
         >
-          <span style={{ fontSize: 11, color: "#475569", fontWeight: 500, marginRight: 2 }}>
+          <span style={{ fontSize: 11, color: "#404040", fontWeight: 500, marginRight: 2 }}>
             Quick add:
           </span>
           {picks.map((pick) => (

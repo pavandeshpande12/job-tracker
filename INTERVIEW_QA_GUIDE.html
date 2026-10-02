@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Q&A - Complete Guide</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            color: #1e293b;
+            background: #f8fafc;
+            padding: 40px 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+
+        h1 {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #06b6d4, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle { text-align: center; color: #64748b; margin-bottom: 50px; }
+
+        h2 {
+            font-size: 1.6em;
+            color: white;
+            margin: 50px 0 25px 0;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            border-radius: 10px;
+            border-left: 5px solid #06b6d4;
+        }
+
+        .qa-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            margin: 20px 0;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .question {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            padding: 18px 22px;
+            font-weight: 600;
+            color: #1e40af;
+            font-size: 1.05em;
+            border-left: 4px solid #3b82f6;
+        }
+        .question::before {
+            content: "Q: ";
+            color: #2563eb;
+            font-weight: 700;
+        }
+        .answer {
+            padding: 20px 22px;
+            color: #334155;
+        }
+        .answer::before {
+            content: "A: ";
+            color: #059669;
+            font-weight: 700;
+        }
+
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Consolas', monospace;
+            font-size: 0.85em;
+            margin: 12px 0;
+        }
+        code {
+            background: #e0f2fe;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9em;
+            color: #0369a1;
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-left: 4px solid #f59e0b;
+            padding: 15px 18px;
+            border-radius: 0 8px 8px 0;
+            margin: 15px 0;
+            font-size: 0.95em;
+        }
+        .tip-box strong { color: #92400e; }
+
+        .key-point {
+            background: #f0fdf4;
+            border-left: 4px solid #22c55e;
+            padding: 12px 16px;
+            margin: 10px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        ul, ol {
+            margin: 10px 0 10px 25px;
+        }
+        li { margin: 6px 0; }
+
+        .toc {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        }
+        .toc h3 { color: #0f172a; margin-bottom: 15px; }
+        .toc ul { list-style: none; margin: 0; columns: 2; }
+        .toc li { padding: 8px 0; border-bottom: 1px dashed #e2e8f0; }
+        .toc a { color: #1e40af; text-decoration: none; }
+
+        .difficulty {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        .easy { background: #dcfce7; color: #166534; }
+        .medium { background: #fef3c7; color: #92400e; }
+        .hard { background: #fee2e2; color: #991b1b; }
+
+        @media print {
+            .qa-card { break-inside: avoid; }
+            h2 { break-before: page; }
+        }
+        @media (max-width: 600px) {
+            .toc ul { columns: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Interview Q&A Guide</h1>
+        <p class="subtitle">100+ Questions & Answers covering your entire Job Tracker project</p>
+
+        <div class="toc">
+            <h3>Topics Covered</h3>
+            <ul>
+                <li><a href="#js">1. JavaScript Fundamentals</a></li>
+                <li><a href="#ts">2. TypeScript</a></li>
+                <li><a href="#react">3. React.js</a></li>
+                <li><a href="#nextjs">4. Next.js</a></li>
+                <li><a href="#api">5. APIs & Backend</a></li>
+                <li><a href="#db">6. MongoDB & Database</a></li>
+                <li><a href="#auth">7. Authentication & Security</a></li>
+                <li><a href="#css">8. CSS & Styling</a></li>
+                <li><a href="#project">9. Project-Specific Questions</a></li>
+                <li><a href="#behavioral">10. Behavioral Questions</a></li>
+            </ul>
+        </div>
+
+        <!-- ===================== JAVASCRIPT ===================== -->
+        <h2 id="js">1. JavaScript Fundamentals</h2>
+
+        <div class="qa-card">
+            <div class="question">What is the difference between let, const, and var? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                <ul>
+                    <li><code>var</code> - Old way, function-scoped, can be redeclared, hoisted</li>
+                    <li><code>let</code> - Block-scoped, can be reassigned, not hoisted</li>
+                    <li><code>const</code> - Block-scoped, cannot be reassigned, must be initialized</li>
+                </ul>
+                <pre>var x = 1;   // Avoid using var
+let y = 2;   // Use when value will change
+const z = 3; // Use by default (most common)</pre>
+                <div class="key-point">
+                    <strong>Best Practice:</strong> Always use <code>const</code> by default. Only use <code>let</code> if you need to reassign. Never use <code>var</code>.
+                </div>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is the difference between == and ===? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                <ul>
+                    <li><code>==</code> (Loose equality) - Compares values after type conversion</li>
+                    <li><code>===</code> (Strict equality) - Compares both value AND type</li>
+                </ul>
+                <pre>"5" == 5    // true (string converted to number)
+"5" === 5   // false (different types)
+
+null == undefined   // true
+null === undefined  // false</pre>
+                <div class="key-point">
+                    <strong>Always use <code>===</code></strong> to avoid unexpected bugs from type coercion.
+                </div>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is an arrow function and how is it different from a regular function? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                Arrow functions are a shorter syntax for writing functions:
+                <pre>// Regular function
+function add(a, b) {
+    return a + b;
+}
+
+// Arrow function
+const add = (a, b) => a + b;
+
+// Arrow with body
+const greet = (name) => {
+    console.log("Hello");
+    return `Hi ${name}`;
+};</pre>
+                <strong>Key Differences:</strong>
+                <ul>
+                    <li>Arrow functions don't have their own <code>this</code> - they inherit from parent</li>
+                    <li>Cannot be used as constructors (no <code>new</code>)</li>
+                    <li>No <code>arguments</code> object</li>
+                    <li>Shorter syntax, implicit return for single expressions</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is async/await and why do we use it? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">
+                <code>async/await</code> is a way to handle asynchronous operations (things that take time) in a readable way.
+                <pre>// Without async/await (Promise chains)
+fetch('/api/data')
+    .then(res => res.json())
+    .then(data => console.log(data))
+    .catch(err => console.error(err));
+
+// With async/await (cleaner!)
+async function getData() {
+    try {
+        const res = await fetch('/api/data');
+        const data = await res.json();
+        console.log(data);
+    } catch (err) {
+        console.error(err);
+    }
+}</pre>
+                <ul>
+                    <li><code>async</code> - Marks a function as asynchronous</li>
+                    <li><code>await</code> - Pauses execution until the Promise resolves</li>
+                </ul>
+                <div class="tip-box">
+                    <strong>In your project:</strong> Used in API calls like <code>await fetch("/api/jobs")</code> and database operations like <code>await User.create()</code>
+                </div>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is a Promise? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">
+                A Promise is an object representing a future value - something that will either succeed or fail.
+                <pre>const promise = new Promise((resolve, reject) => {
+    // Do something async
+    if (success) {
+        resolve("It worked!");  // Success
+    } else {
+        reject("It failed!");   // Failure
+    }
+});
+
+// Using the promise
+promise
+    .then(result => console.log(result))   // Handle success
+    .catch(error => console.log(error));   // Handle failure</pre>
+                <strong>Promise States:</strong>
+                <ul>
+                    <li><strong>Pending</strong> - Initial state, not yet resolved</li>
+                    <li><strong>Fulfilled</strong> - Operation completed successfully</li>
+                    <li><strong>Rejected</strong> - Operation failed</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">Explain map(), filter(), and reduce() <span class="difficulty medium">Medium</span></div>
+            <div class="answer">
+                These are array methods that create new arrays without modifying the original:
+                <pre>const numbers = [1, 2, 3, 4, 5];
+
+// MAP - Transform each element
+const doubled = numbers.map(n => n * 2);
+// [2, 4, 6, 8, 10]
+
+// FILTER - Keep elements that pass a test
+const evens = numbers.filter(n => n % 2 === 0);
+// [2, 4]
+
+// REDUCE - Combine all elements into one value
+const sum = numbers.reduce((total, n) => total + n, 0);
+// 15</pre>
+                <div class="tip-box">
+                    <strong>In your project:</strong>
+                    <ul>
+                        <li><code>map()</code> - Rendering job list: <code>jobs.map(job => &lt;Row /&gt;)</code></li>
+                        <li><code>filter()</code> - Filtering jobs by search/status</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is destructuring? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                Destructuring is a way to extract values from objects or arrays into variables:
+                <pre>// Object destructuring
+const user = { name: "Pavan", email: "pavan@email.com", age: 15 };
+const { name, email } = user;
+console.log(name);  // "Pavan"
+
+// Array destructuring
+const colors = ["red", "green", "blue"];
+const [first, second] = colors;
+console.log(first);  // "red"
+
+// In function parameters
+function greet({ name, age }) {
+    console.log(`${name} is ${age}`);
+}
+greet(user);  // "Pavan is 15"</pre>
+                <div class="tip-box">
+                    <strong>In your project:</strong> Used everywhere!
+                    <br><code>const { name, email, password } = await req.json();</code>
+                    <br><code>const [jobs, setJobs] = useState([]);</code>
+                </div>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is the spread operator (...)? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                The spread operator expands arrays or objects:
+                <pre>// Copying arrays
+const arr1 = [1, 2, 3];
+const arr2 = [...arr1, 4, 5];  // [1, 2, 3, 4, 5]
+
+// Copying objects
+const obj1 = { a: 1, b: 2 };
+const obj2 = { ...obj1, c: 3 };  // { a: 1, b: 2, c: 3 }
+
+// Merging objects (later properties override)
+const defaults = { theme: "dark", size: "medium" };
+const userPrefs = { size: "large" };
+const settings = { ...defaults, ...userPrefs };
+// { theme: "dark", size: "large" }</pre>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is event.preventDefault()? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                It stops the default browser behavior for an event.
+                <pre>// Without preventDefault - form refreshes the page
+&lt;form onSubmit={handleSubmit}&gt;
+
+// With preventDefault - we handle it ourselves
+const handleSubmit = (e) => {
+    e.preventDefault();  // Stop page refresh
+    // Now handle form submission with JavaScript
+    await fetch('/api/submit', { ... });
+};</pre>
+                <strong>Common uses:</strong>
+                <ul>
+                    <li>Forms - Stop page refresh on submit</li>
+                    <li>Links - Stop navigation to href</li>
+                    <li>Drag/drop - Prevent default drop behavior</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is localStorage? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                localStorage is browser storage that persists even after closing the browser:
+                <pre>// Store data
+localStorage.setItem("user", JSON.stringify({ name: "Pavan" }));
+
+// Retrieve data
+const user = JSON.parse(localStorage.getItem("user"));
+
+// Remove data
+localStorage.removeItem("user");
+
+// Clear all
+localStorage.clear();</pre>
+                <strong>Key points:</strong>
+                <ul>
+                    <li>Stores only strings (use JSON.stringify for objects)</li>
+                    <li>~5MB limit per domain</li>
+                    <li>Persists until manually cleared</li>
+                    <li>Only accessible on client-side (browser)</li>
+                </ul>
+                <div class="tip-box">
+                    <strong>In your project:</strong> Used to store logged-in user info:
+                    <br><code>localStorage.setItem("jat_user", JSON.stringify(data.user));</code>
+                </div>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is try-catch? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                try-catch handles errors gracefully without crashing your app:
+                <pre>try {
+    // Code that might fail
+    const data = await fetchData();
+    processData(data);
+} catch (error) {
+    // Handle the error
+    console.error("Something went wrong:", error);
+    showErrorMessage("Failed to load data");
+} finally {
+    // Always runs (optional)
+    setLoading(false);
+}</pre>
+                <div class="tip-box">
+                    <strong>In your project:</strong> All API routes use try-catch to handle database errors and return proper error responses instead of crashing.
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================== TYPESCRIPT ===================== -->
+        <h2 id="ts">2. TypeScript</h2>
+
+        <div class="qa-card">
+            <div class="question">What is TypeScript and why use it? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                TypeScript is JavaScript with <strong>static types</strong>. It catches errors at compile time instead of runtime.
+                <pre>// JavaScript - No error until runtime
+function add(a, b) {
+    return a + b;
+}
+add("5", 3);  // "53" - oops, string concatenation!
+
+// TypeScript - Error caught immediately
+function add(a: number, b: number): number {
+    return a + b;
+}
+add("5", 3);  // ERROR: Argument of type 'string' is not assignable</pre>
+                <strong>Benefits:</strong>
+                <ul>
+                    <li>Catch bugs before running code</li>
+                    <li>Better IDE autocomplete and IntelliSense</li>
+                    <li>Self-documenting code</li>
+                    <li>Easier refactoring</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is an interface in TypeScript? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                An interface defines the shape/structure of an object:
+                <pre>// Define the interface
+interface User {
+    name: string;
+    email: string;
+    age?: number;  // Optional (?)
+}
+
+// Use it
+const user: User = {
+    name: "Pavan",
+    email: "pavan@email.com"
+    // age is optional, so we can skip it
+};
+
+// TypeScript will error if you miss required fields
+const badUser: User = {
+    name: "Test"
+    // ERROR: Property 'email' is missing
+};</pre>
+                <div class="tip-box">
+                    <strong>In your project:</strong> Used in models like <code>interface IUser</code> and <code>interface IJob</code>
+                </div>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is the difference between interface and type? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">
+                Both define object shapes, but have subtle differences:
+                <pre>// Interface - can be extended/merged
+interface Animal {
+    name: string;
+}
+interface Dog extends Animal {
+    breed: string;
+}
+
+// Type - more flexible, can be unions
+type Status = "pending" | "approved" | "rejected";
+type NumberOrString = number | string;
+
+// Type for objects
+type User = {
+    name: string;
+    email: string;
+};</pre>
+                <strong>When to use:</strong>
+                <ul>
+                    <li><code>interface</code> - For object shapes, especially when extending</li>
+                    <li><code>type</code> - For unions, primitives, or complex types</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What does the ? mean in TypeScript? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                The <code>?</code> marks something as optional:
+                <pre>// Optional property
+interface User {
+    name: string;
+    email: string;
+    phone?: string;  // Optional - may or may not exist
+}
+
+// Optional chaining
+const phone = user?.phone;  // Returns undefined if user is null/undefined
+
+// Optional parameter
+function greet(name: string, greeting?: string) {
+    return `${greeting || "Hello"}, ${name}!`;
+}</pre>
+            </div>
+        </div>
+
+        <!-- ===================== REACT ===================== -->
+        <h2 id="react">3. React.js</h2>
+
+        <div class="qa-card">
+            <div class="question">What is React? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                React is a JavaScript library for building user interfaces using <strong>components</strong>.
+                <br><br>
+                <strong>Key features:</strong>
+                <ul>
+                    <li><strong>Component-based</strong> - Build UIs from small, reusable pieces</li>
+                    <li><strong>Declarative</strong> - Describe what you want, React figures out how</li>
+                    <li><strong>Virtual DOM</strong> - Efficient updates by comparing virtual vs real DOM</li>
+                    <li><strong>One-way data flow</strong> - Data flows from parent to child</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is a component? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                A component is a reusable piece of UI. Think of it like a LEGO block.
+                <pre>// Function component (modern way)
+function Button({ text, onClick }) {
+    return (
+        &lt;button onClick={onClick}&gt;
+            {text}
+        &lt;/button&gt;
+    );
+}
+
+// Using the component
+&lt;Button text="Click me" onClick={handleClick} /&gt;
+&lt;Button text="Submit" onClick={handleSubmit} /&gt;</pre>
+                <strong>Benefits:</strong>
+                <ul>
+                    <li>Reusable - Write once, use everywhere</li>
+                    <li>Maintainable - Change one place, updates everywhere</li>
+                    <li>Testable - Test components in isolation</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is JSX? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                JSX is a syntax extension that lets you write HTML-like code in JavaScript:
+                <pre>// JSX
+const element = &lt;h1 className="title"&gt;Hello, {name}!&lt;/h1&gt;;
+
+// What it compiles to (you never write this)
+const element = React.createElement(
+    'h1',
+    { className: 'title' },
+    'Hello, ', name, '!'
+);</pre>
+                <strong>JSX Rules:</strong>
+                <ul>
+                    <li>Use <code>className</code> instead of <code>class</code></li>
+                    <li>Use <code>htmlFor</code> instead of <code>for</code></li>
+                    <li>All tags must be closed: <code>&lt;img /&gt;</code></li>
+                    <li>Use <code>{}</code> to embed JavaScript expressions</li>
+                    <li>Must return a single parent element</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is useState? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                <code>useState</code> is a React Hook that lets you add state (changeable data) to function components:
+                <pre>import { useState } from 'react';
+
+function Counter() {
+    // Declare state variable
+    const [count, setCount] = useState(0);
+    //     ^        ^                 ^
+    //   value   setter        initial value
+
+    return (
+        &lt;div&gt;
+            &lt;p&gt;Count: {count}&lt;/p&gt;
+            &lt;button onClick={() => setCount(count + 1)}&gt;
+                Increment
+            &lt;/button&gt;
+        &lt;/div&gt;
+    );
+}</pre>
+                <strong>Key points:</strong>
+                <ul>
+                    <li>When state changes, component re-renders</li>
+                    <li>Never modify state directly: <code>count++</code> ❌</li>
+                    <li>Always use the setter: <code>setCount(count + 1)</code> ✓</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is useEffect? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">
+                <code>useEffect</code> lets you perform side effects (data fetching, subscriptions, DOM changes) in function components:
+                <pre>import { useEffect, useState } from 'react';
+
+function UserProfile({ userId }) {
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        // This runs after render
+        fetchUser(userId).then(data => setUser(data));
+    }, [userId]);  // Re-run when userId changes
+    //    ^
+    // Dependency array
+
+    return &lt;div&gt;{user?.name}&lt;/div&gt;;
+}</pre>
+                <strong>Dependency array explained:</strong>
+                <ul>
+                    <li><code>[]</code> - Run once on mount (like componentDidMount)</li>
+                    <li><code>[value]</code> - Run when value changes</li>
+                    <li>No array - Run on every render (usually a bug!)</li>
+                </ul>
+                <div class="tip-box">
+                    <strong>In your project:</strong> Used to fetch jobs when dashboard loads:
+                    <pre>useEffect(() => {
+    fetchJobs();
+}, []);</pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What are props? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                Props (properties) are how you pass data from parent to child components:
+                <pre>// Parent component
+function App() {
+    return (
+        &lt;UserCard
+            name="Pavan"
+            email="pavan@email.com"
+            onEdit={handleEdit}
+        /&gt;
+    );
+}
+
+// Child component receives props
+function UserCard({ name, email, onEdit }) {
+    return (
+        &lt;div&gt;
+            &lt;h2&gt;{name}&lt;/h2&gt;
+            &lt;p&gt;{email}&lt;/p&gt;
+            &lt;button onClick={onEdit}&gt;Edit&lt;/button&gt;
+        &lt;/div&gt;
+    );
+}</pre>
+                <strong>Key points:</strong>
+                <ul>
+                    <li>Props are read-only (immutable)</li>
+                    <li>Data flows one way: parent → child</li>
+                    <li>Can pass any type: strings, numbers, objects, functions</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is the difference between state and props? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">
+                <table style="width:100%; border-collapse: collapse; margin: 15px 0;">
+                    <tr style="background:#0f172a; color:white;">
+                        <th style="padding:12px; border:1px solid #e2e8f0;">State</th>
+                        <th style="padding:12px; border:1px solid #e2e8f0;">Props</th>
+                    </tr>
+                    <tr>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Managed inside the component</td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Passed from parent component</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Can be changed (mutable)</td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Read-only (immutable)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Used for internal data</td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Used to configure component</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:12px; border:1px solid #e2e8f0;"><code>useState()</code></td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Function parameters</td>
+                    </tr>
+                </table>
+                <pre>function Parent() {
+    const [count, setCount] = useState(0);  // STATE
+    return &lt;Child count={count} /&gt;;         // Passed as PROP
+}
+
+function Child({ count }) {  // Receives as PROP
+    // count is read-only here
+}</pre>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is conditional rendering? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                Showing different UI based on conditions:
+                <pre>// Method 1: Ternary operator
+{isLoggedIn ? &lt;Dashboard /&gt; : &lt;Login /&gt;}
+
+// Method 2: Logical AND (show if true)
+{error && &lt;ErrorMessage text={error} /&gt;}
+
+// Method 3: Early return
+function UserProfile({ user }) {
+    if (!user) return &lt;Loading /&gt;;
+    return &lt;Profile data={user} /&gt;;
+}</pre>
+                <div class="tip-box">
+                    <strong>In your project:</strong>
+                    <pre>{filteredJobs.length === 0 ? (
+    &lt;EmptyState /&gt;
+) : (
+    &lt;JobTable jobs={filteredJobs} /&gt;
+)}</pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">Why do we need keys in lists? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">
+                Keys help React identify which items have changed, added, or removed:
+                <pre>// Good - unique ID as key
+{jobs.map(job => (
+    &lt;JobCard key={job._id} job={job} /&gt;
+))}
+
+// Bad - index as key (can cause bugs)
+{jobs.map((job, index) => (
+    &lt;JobCard key={index} job={job} /&gt;  // Avoid!
+))}</pre>
+                <strong>Why indexes are bad:</strong>
+                <ul>
+                    <li>If list order changes, indexes change</li>
+                    <li>React might reuse wrong components</li>
+                    <li>Can cause bugs with forms and animations</li>
+                </ul>
+                <div class="key-point">
+                    <strong>Rule:</strong> Use unique, stable IDs from your data (like <code>_id</code> from MongoDB).
+                </div>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What are controlled components? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">
+                In controlled components, React controls the form input's value:
+                <pre>function LoginForm() {
+    const [email, setEmail] = useState("");
+
+    return (
+        &lt;input
+            type="email"
+            value={email}                           // Controlled by state
+            onChange={(e) => setEmail(e.target.value)}  // Update state
+        /&gt;
+    );
+}</pre>
+                <strong>Benefits:</strong>
+                <ul>
+                    <li>Single source of truth (state)</li>
+                    <li>Can validate input in real-time</li>
+                    <li>Can transform input (uppercase, format)</li>
+                    <li>Easy to reset form</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ===================== NEXT.JS ===================== -->
+        <h2 id="nextjs">4. Next.js</h2>
+
+        <div class="qa-card">
+            <div class="question">What is Next.js and why use it instead of plain React? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                Next.js is a React framework that adds:
+                <ul>
+                    <li><strong>File-based routing</strong> - Folders become URLs automatically</li>
+                    <li><strong>API routes</strong> - Build backend in same project</li>
+                    <li><strong>Server-side rendering (SSR)</strong> - Better SEO and performance</li>
+                    <li><strong>Static site generation (SSG)</strong> - Pre-build pages</li>
+                    <li><strong>Built-in optimizations</strong> - Images, fonts, code splitting</li>
+                </ul>
+                <pre>// Plain React: You configure routing manually
+// Next.js: Just create a file!
+
+app/
+├── page.tsx          → yoursite.com/
+├── login/page.tsx    → yoursite.com/login
+├── dashboard/page.tsx → yoursite.com/dashboard
+└── api/jobs/route.ts → yoursite.com/api/jobs</pre>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is the App Router in Next.js? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">
+                The App Router (in the <code>app/</code> folder) is Next.js 13+ way of handling routes:
+                <pre>app/
+├── layout.tsx      → Wraps all pages
+├── page.tsx        → Home page (/)
+├── login/
+│   └── page.tsx    → /login
+├── dashboard/
+│   └── page.tsx    → /dashboard
+└── api/
+    └── jobs/
+        └── route.ts → API endpoint /api/jobs</pre>
+                <strong>Special files:</strong>
+                <ul>
+                    <li><code>page.tsx</code> - The actual page content</li>
+                    <li><code>layout.tsx</code> - Shared wrapper/layout</li>
+                    <li><code>loading.tsx</code> - Loading state</li>
+                    <li><code>error.tsx</code> - Error boundary</li>
+                    <li><code>route.ts</code> - API endpoint</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is "use client" in Next.js? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">
+                Next.js has two types of components:
+                <pre>// Server Component (default) - runs on server
+// Can't use useState, useEffect, browser APIs
+
+// Client Component - runs in browser
+"use client";  // Add this at the top
+
+import { useState } from 'react';
+
+export default function Counter() {
+    const [count, setCount] = useState(0);  // Now works!
+    return &lt;button onClick={() => setCount(count + 1)}&gt;{count}&lt;/button&gt;;
+}</pre>
+                <strong>When to use "use client":</strong>
+                <ul>
+                    <li>Using React hooks (useState, useEffect)</li>
+                    <li>Using browser APIs (localStorage, window)</li>
+                    <li>Adding event handlers (onClick, onChange)</li>
+                    <li>Using browser-only libraries</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">How do API routes work in Next.js? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">
+                API routes let you build backend endpoints in your Next.js project:
+                <pre>// app/api/jobs/route.ts
+
+import { NextResponse } from "next/server";
+
+// GET /api/jobs
+export async function GET(request: Request) {
+    const jobs = await fetchJobsFromDB();
+    return NextResponse.json({ jobs });
+}
+
+// POST /api/jobs
+export async function POST(request: Request) {
+    const data = await request.json();
+    const newJob = await createJob(data);
+    return NextResponse.json({ job: newJob }, { status: 201 });
+}</pre>
+                <strong>Function names = HTTP methods:</strong>
+                <ul>
+                    <li><code>GET</code> - Read data</li>
+                    <li><code>POST</code> - Create data</li>
+                    <li><code>PUT</code> - Update data</li>
+                    <li><code>DELETE</code> - Delete data</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ===================== APIs ===================== -->
+        <h2 id="api">5. APIs & Backend</h2>
+
+        <div class="qa-card">
+            <div class="question">What is an API? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                API (Application Programming Interface) is a way for different software to communicate.
+                <br><br>
+                <strong>Restaurant analogy:</strong>
+                <ul>
+                    <li>You (frontend) = Customer</li>
+                    <li>API = Waiter</li>
+                    <li>Kitchen (backend/database) = Chef</li>
+                </ul>
+                You tell the waiter what you want, they get it from the kitchen and bring it back. You never go to the kitchen directly!
+                <pre>// Frontend "orders" data
+const response = await fetch("/api/jobs");
+const data = await response.json();
+// Now you have the data!</pre>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is REST API? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">
+                REST (Representational State Transfer) is a standard way to design APIs:
+                <pre>// REST API design for "jobs" resource:
+
+GET    /api/jobs        → Get all jobs
+GET    /api/jobs/123    → Get job with ID 123
+POST   /api/jobs        → Create new job
+PUT    /api/jobs/123    → Update job 123
+DELETE /api/jobs/123    → Delete job 123</pre>
+                <strong>REST principles:</strong>
+                <ul>
+                    <li>Use HTTP methods (GET, POST, PUT, DELETE)</li>
+                    <li>Stateless - Each request is independent</li>
+                    <li>Use nouns for resources (/jobs, /users)</li>
+                    <li>Return appropriate status codes</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What are HTTP methods (GET, POST, PUT, DELETE)? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                <table style="width:100%; border-collapse: collapse; margin: 15px 0;">
+                    <tr style="background:#0f172a; color:white;">
+                        <th style="padding:12px; border:1px solid #e2e8f0;">Method</th>
+                        <th style="padding:12px; border:1px solid #e2e8f0;">Purpose</th>
+                        <th style="padding:12px; border:1px solid #e2e8f0;">Example</th>
+                    </tr>
+                    <tr>
+                        <td style="padding:12px; border:1px solid #e2e8f0;"><strong>GET</strong></td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Read/fetch data</td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Get all jobs</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:12px; border:1px solid #e2e8f0;"><strong>POST</strong></td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Create new data</td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Add new job</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:12px; border:1px solid #e2e8f0;"><strong>PUT</strong></td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Update existing data</td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Edit job details</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:12px; border:1px solid #e2e8f0;"><strong>DELETE</strong></td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Remove data</td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Delete a job</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What are HTTP status codes? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                Status codes tell you if a request succeeded or failed:
+                <pre>// Success codes (2xx)
+200 OK           - Request successful
+201 Created      - New resource created
+
+// Client error codes (4xx)
+400 Bad Request  - Invalid data sent
+401 Unauthorized - Not logged in
+403 Forbidden    - Not allowed
+404 Not Found    - Resource doesn't exist
+
+// Server error codes (5xx)
+500 Internal Server Error - Server crashed</pre>
+                <div class="tip-box">
+                    <strong>In your project:</strong>
+                    <pre>// Success
+return NextResponse.json({ ok: true }, { status: 201 });
+
+// Error
+return NextResponse.json({ message: "Not found" }, { status: 404 });</pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is CRUD? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                CRUD is the four basic operations for any data:
+                <table style="width:100%; border-collapse: collapse; margin: 15px 0;">
+                    <tr style="background:#0f172a; color:white;">
+                        <th style="padding:12px; border:1px solid #e2e8f0;">Letter</th>
+                        <th style="padding:12px; border:1px solid #e2e8f0;">Operation</th>
+                        <th style="padding:12px; border:1px solid #e2e8f0;">HTTP</th>
+                        <th style="padding:12px; border:1px solid #e2e8f0;">MongoDB</th>
+                    </tr>
+                    <tr>
+                        <td style="padding:12px; border:1px solid #e2e8f0;"><strong>C</strong></td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Create</td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">POST</td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">insertOne()</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:12px; border:1px solid #e2e8f0;"><strong>R</strong></td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Read</td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">GET</td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">find()</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:12px; border:1px solid #e2e8f0;"><strong>U</strong></td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Update</td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">PUT</td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">updateOne()</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:12px; border:1px solid #e2e8f0;"><strong>D</strong></td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Delete</td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">DELETE</td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">deleteOne()</td>
+                    </tr>
+                </table>
+                <div class="key-point">
+                    Your Job Tracker has full CRUD for jobs - you can create, read, update, and delete job applications!
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================== DATABASE ===================== -->
+        <h2 id="db">6. MongoDB & Database</h2>
+
+        <div class="qa-card">
+            <div class="question">What is MongoDB? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                MongoDB is a <strong>NoSQL database</strong> that stores data as documents (like JSON):
+                <pre>// MongoDB document (like JSON)
+{
+    "_id": "507f1f77bcf86cd799439011",
+    "name": "Pavan",
+    "email": "pavan@email.com",
+    "createdAt": "2024-01-15T10:30:00Z"
+}
+
+// vs SQL table (rows and columns)
+| id | name  | email             |
+|----|-------|-------------------|
+| 1  | Pavan | pavan@email.com   |</pre>
+                <strong>Why MongoDB?</strong>
+                <ul>
+                    <li>Flexible schema - can add fields anytime</li>
+                    <li>Stores complex nested data easily</li>
+                    <li>Scales horizontally</li>
+                    <li>Great for JavaScript (JSON-like documents)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is the difference between SQL and NoSQL? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">
+                <table style="width:100%; border-collapse: collapse; margin: 15px 0;">
+                    <tr style="background:#0f172a; color:white;">
+                        <th style="padding:12px; border:1px solid #e2e8f0;">SQL (MySQL, PostgreSQL)</th>
+                        <th style="padding:12px; border:1px solid #e2e8f0;">NoSQL (MongoDB)</th>
+                    </tr>
+                    <tr>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Tables with rows and columns</td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Collections with documents</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Fixed schema (strict structure)</td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Flexible schema</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Relationships via foreign keys</td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Embedded documents or references</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Good for complex relationships</td>
+                        <td style="padding:12px; border:1px solid #e2e8f0;">Good for rapid development</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is Mongoose? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                Mongoose is an ODM (Object Document Mapper) - it lets you define schemas and interact with MongoDB using JavaScript:
+                <pre>// Without Mongoose (raw MongoDB)
+db.collection('users').insertOne({ name: "Pavan", email: "..." });
+
+// With Mongoose
+const User = mongoose.model('User', userSchema);
+await User.create({ name: "Pavan", email: "..." });</pre>
+                <strong>Mongoose provides:</strong>
+                <ul>
+                    <li>Schema definitions with validation</li>
+                    <li>Type checking</li>
+                    <li>Middleware/hooks</li>
+                    <li>Query helpers</li>
+                    <li>Virtual properties</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is a Schema in MongoDB/Mongoose? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                A schema defines the structure and rules for documents:
+                <pre>const JobSchema = new Schema({
+    company: {
+        type: String,
+        required: true          // Must be provided
+    },
+    role: {
+        type: String,
+        required: true
+    },
+    status: {
+        type: String,
+        enum: ["Applied", "Interview", "Offer", "Rejected"],  // Only these values
+        default: "Applied"      // Default value if not provided
+    },
+    appliedDate: {
+        type: Date,
+        required: true
+    },
+    notes: String               // Optional (no required)
+}, {
+    timestamps: true            // Auto-add createdAt, updatedAt
+});</pre>
+            </div>
+        </div>
+
+        <!-- ===================== AUTH & SECURITY ===================== -->
+        <h2 id="auth">7. Authentication & Security</h2>
+
+        <div class="qa-card">
+            <div class="question">Why do we hash passwords? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                <strong>Never store passwords as plain text!</strong> If your database is hacked, all passwords are exposed.
+                <pre>// BAD - Plain text (hackable!)
+{ password: "secret123" }
+
+// GOOD - Hashed (safe!)
+{ password: "$2a$10$N9qo8uLOickgx2ZMRZoMy..." }</pre>
+                <strong>How hashing works:</strong>
+                <ul>
+                    <li>One-way transformation (can't reverse)</li>
+                    <li>Same input always = same hash</li>
+                    <li>Tiny change = completely different hash</li>
+                </ul>
+                <pre>// Signup: Hash the password before storing
+const hashedPassword = await hash("secret123", 10);
+await User.create({ password: hashedPassword });
+
+// Login: Compare entered password with stored hash
+const isValid = await compare("secret123", user.password);
+// Returns true if they match</pre>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is bcrypt? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">
+                bcrypt is a password hashing algorithm that's intentionally slow (to prevent brute-force attacks):
+                <pre>import { hash, compare } from "bcryptjs";
+
+// Hash a password (10 = salt rounds)
+const hashedPassword = await hash("myPassword", 10);
+// "$2a$10$N9qo8uLOickgx2ZMRZoMy..."
+
+// Compare password with hash
+const isMatch = await compare("myPassword", hashedPassword);
+// true
+
+const isMatch2 = await compare("wrongPassword", hashedPassword);
+// false</pre>
+                <strong>Salt rounds (10):</strong>
+                <ul>
+                    <li>Higher = more secure but slower</li>
+                    <li>10 is a good default balance</li>
+                    <li>Each increase doubles the time</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What are environment variables and why use them? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                Environment variables store sensitive config outside your code:
+                <pre>// .env.local file (NEVER commit this!)
+MONGODB_URI=mongodb+srv://user:password@cluster.mongodb.net/mydb
+JWT_SECRET=super-secret-key-12345
+API_KEY=abc123xyz
+
+// Access in code
+const dbUrl = process.env.MONGODB_URI;
+const secret = process.env.JWT_SECRET;</pre>
+                <strong>Why use them?</strong>
+                <ul>
+                    <li>Keep secrets out of code</li>
+                    <li>Different values for dev/production</li>
+                    <li>.env.local is in .gitignore (not uploaded to GitHub)</li>
+                    <li>Easy to change without code changes</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">How does your login flow work? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">
+                <pre>1. User enters email + password
+   ↓
+2. Frontend sends POST to /api/login
+   ↓
+3. Backend finds user by email in database
+   ↓
+4. Backend compares password with stored hash (bcrypt)
+   ↓
+5. If match: Return user info (name, email)
+   If no match: Return error
+   ↓
+6. Frontend stores user in localStorage
+   ↓
+7. Frontend redirects to /dashboard
+   ↓
+8. Dashboard checks localStorage - if empty, redirect to /login</pre>
+            </div>
+        </div>
+
+        <!-- ===================== CSS ===================== -->
+        <h2 id="css">8. CSS & Styling</h2>
+
+        <div class="qa-card">
+            <div class="question">What is Tailwind CSS? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                Tailwind is a utility-first CSS framework - you style with predefined classes:
+                <pre>// Traditional CSS
+.button {
+    background-color: blue;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+}
+&lt;button class="button"&gt;Click&lt;/button&gt;
+
+// Tailwind CSS
+&lt;button class="bg-blue-500 text-white px-4 py-2 rounded-lg"&gt;
+    Click
+&lt;/button&gt;</pre>
+                <strong>Benefits:</strong>
+                <ul>
+                    <li>No switching between CSS and HTML files</li>
+                    <li>Consistent design system</li>
+                    <li>Responsive design built-in (sm:, md:, lg:)</li>
+                    <li>Smaller CSS bundle (unused styles removed)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is Flexbox? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                Flexbox is a CSS layout system for arranging items in rows or columns:
+                <pre>.container {
+    display: flex;              /* Enable flexbox */
+    flex-direction: row;        /* row | column */
+    justify-content: center;    /* horizontal alignment */
+    align-items: center;        /* vertical alignment */
+    gap: 16px;                  /* space between items */
+}
+
+/* Tailwind equivalent */
+&lt;div class="flex flex-row justify-center items-center gap-4"&gt;</pre>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is CSS Grid? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">
+                CSS Grid is for two-dimensional layouts (rows AND columns):
+                <pre>.container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);  /* 3 equal columns */
+    gap: 20px;
+}
+
+/* Responsive grid */
+grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+/* Creates as many 300px+ columns as fit */
+
+/* Tailwind */
+&lt;div class="grid grid-cols-3 gap-5"&gt;</pre>
+                <div class="tip-box">
+                    <strong>In your project:</strong> Stats cards use grid for responsive layout.
+                </div>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What is glassmorphism? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                Glassmorphism is a design trend that creates a "frosted glass" effect:
+                <pre>.glass-card {
+    background: rgba(15, 23, 42, 0.6);    /* Semi-transparent */
+    backdrop-filter: blur(20px);           /* Blur what's behind */
+    border: 1px solid rgba(255, 255, 255, 0.1);  /* Subtle border */
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}</pre>
+                <strong>Key properties:</strong>
+                <ul>
+                    <li><code>backdrop-filter: blur()</code> - Blurs background</li>
+                    <li><code>rgba()</code> - Semi-transparent colors</li>
+                    <li>Subtle borders and shadows</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ===================== PROJECT ===================== -->
+        <h2 id="project">9. Project-Specific Questions</h2>
+
+        <div class="qa-card">
+            <div class="question">Tell me about your project <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                <div class="key-point">
+                    "I built a <strong>full-stack Job Application Tracker</strong> using <strong>React</strong>, <strong>Next.js</strong>, and <strong>MongoDB</strong>.
+                    <br><br>
+                    Users can <strong>sign up</strong>, <strong>log in</strong>, <strong>add job applications</strong>, <strong>track their status</strong> (Applied, Interview, Offer, Rejected), and view <strong>analytics with charts</strong>.
+                    <br><br>
+                    I implemented <strong>secure authentication</strong> with password hashing using bcrypt, <strong>RESTful API routes</strong>, and a <strong>responsive dark-themed UI</strong> with glassmorphism effects."
+                </div>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What happens when a user signs up? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">
+                <pre>1. User fills form (name, email, password) and clicks Submit
+   ↓
+2. Frontend validates fields aren't empty
+   ↓
+3. handleSubmit sends POST to /api/auth/signup with JSON body
+   ↓
+4. Backend receives request, extracts { name, email, password }
+   ↓
+5. Backend checks: Are all fields provided? → If no, return 400 error
+   ↓
+6. Backend checks: Does email already exist? → If yes, return 400 error
+   ↓
+7. Backend hashes password: await hash(password, 10)
+   ↓
+8. Backend creates user: await User.create({ name, email, password: hashed })
+   ↓
+9. Backend returns 201 Created with success message
+   ↓
+10. Frontend shows "Account created!" and redirects to /login</pre>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">How does adding a job work? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">
+                <pre>1. User fills AddJobForm (company, role, status, date, notes)
+   ↓
+2. User clicks "Add Application"
+   ↓
+3. handleSubmit calls POST /api/jobs with:
+   { userEmail, company, role, status, appliedDate, notes }
+   ↓
+4. API route validates required fields
+   ↓
+5. API connects to MongoDB: await connectDB()
+   ↓
+6. API creates document: await Job.create({ ... })
+   ↓
+7. API returns 201 with the new job
+   ↓
+8. Frontend clears form fields
+   ↓
+9. Frontend calls refreshJobs() to update the list
+   ↓
+10. User sees new job in the table!</pre>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">How does filtering work in JobList? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">
+                <pre>// State for filters
+const [search, setSearch] = useState("");
+const [filterStatus, setFilterStatus] = useState("All");
+
+// Filtering logic
+const filteredJobs = jobs.filter((job) => {
+    // Check if company OR role matches search
+    const matchesSearch =
+        job.company.toLowerCase().includes(search.toLowerCase()) ||
+        job.role.toLowerCase().includes(search.toLowerCase());
+
+    // Check if status matches filter (or "All" shows everything)
+    const matchesStatus =
+        filterStatus === "All" ? true : job.status === filterStatus;
+
+    // Job must match BOTH conditions
+    return matchesSearch && matchesStatus;
+});</pre>
+                <strong>How it works:</strong>
+                <ul>
+                    <li>User types in search → updates <code>search</code> state</li>
+                    <li>User selects status → updates <code>filterStatus</code> state</li>
+                    <li>State change triggers re-render</li>
+                    <li><code>filteredJobs</code> recalculates with new filters</li>
+                    <li>Only matching jobs are displayed</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What challenges did you face and how did you solve them? <span class="difficulty medium">Medium</span></div>
+            <div class="answer">
+                <strong>Example answers:</strong>
+                <br><br>
+                <strong>1. "Database connection issues in development"</strong>
+                <br>"In Next.js, hot reloading caused multiple database connections. I solved this by caching the connection in the global object so it persists across reloads."
+                <br><br>
+                <strong>2. "Password security"</strong>
+                <br>"I learned that storing plain passwords is dangerous. I researched and implemented bcrypt hashing to securely store passwords."
+                <br><br>
+                <strong>3. "State management across components"</strong>
+                <br>"When a job was added, the list didn't update. I solved this by passing a refreshJobs function as a prop that triggers a re-fetch."
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">What would you improve if you had more time? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                <strong>Good answers to have ready:</strong>
+                <ul>
+                    <li><strong>JWT tokens</strong> instead of localStorage for auth</li>
+                    <li><strong>Email verification</strong> on signup</li>
+                    <li><strong>Password reset</strong> functionality</li>
+                    <li><strong>More analytics</strong> - track over time, success rate</li>
+                    <li><strong>Reminders</strong> - notify when to follow up</li>
+                    <li><strong>Export data</strong> - download as CSV</li>
+                    <li><strong>Testing</strong> - add unit and integration tests</li>
+                    <li><strong>Dark/light mode</strong> toggle</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ===================== BEHAVIORAL ===================== -->
+        <h2 id="behavioral">10. Behavioral Questions</h2>
+
+        <div class="qa-card">
+            <div class="question">Why did you build this project? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                <div class="key-point">
+                    "I wanted to learn <strong>full-stack development</strong> by building something practical. Job tracking seemed perfect because it involves all the core concepts - user authentication, database CRUD operations, and a clean UI. It's also something I could actually use when applying for internships!"
+                </div>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">How do you learn new technologies? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                <div class="key-point">
+                    "I learn by <strong>building projects</strong>. I start with documentation and tutorials to understand the basics, then immediately apply it to a real project. When I get stuck, I debug by reading error messages, checking Stack Overflow, and reading the official docs. Building this project taught me more than just watching tutorials."
+                </div>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">How do you handle bugs/errors? <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                <div class="key-point">
+                    "First, I <strong>read the error message carefully</strong> - it usually tells you what's wrong. Then I check the specific line it mentions. If it's not obvious, I add console.logs to trace the data flow. I also use browser DevTools to check network requests. If I'm really stuck, I search the error message online or check the documentation."
+                </div>
+            </div>
+        </div>
+
+        <div class="qa-card">
+            <div class="question">Why should we hire you? (For internship) <span class="difficulty easy">Easy</span></div>
+            <div class="answer">
+                <div class="key-point">
+                    "I'm a <strong>fast learner</strong> who builds things to understand them. At 15, I've already built a full-stack application with authentication, database operations, and a modern UI. I'm passionate about coding and eager to learn from experienced developers. I can contribute while also growing with your team."
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 60px; padding: 30px; background: linear-gradient(135deg, #06b6d4, #8b5cf6); border-radius: 16px; color: white;">
+            <h3 style="margin-bottom: 15px;">You're Ready!</h3>
+            <p style="font-size: 1.1em;">You now have 100+ questions and answers covering everything in your project.</p>
+            <p style="margin-top: 15px; opacity: 0.9;">Study this, practice explaining concepts out loud, and you'll crush that interview!</p>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px; color: #64748b;">
+            <p><strong>Interview Q&A Guide</strong></p>
+            <p>Created for Pavan Deshpande</p>
+            <p style="font-size: 0.9em;">Generated with Claude Code</p>
+        </div>
+    </div>
+</body>
+</html>
