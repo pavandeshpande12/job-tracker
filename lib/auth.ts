@@ -1,7 +1,8 @@
 import { cookies } from "next/headers";
 import crypto from "crypto";
 
-const SECRET = process.env.MONGODB_URI || "fallback-secret-change-me";
+const SECRET = process.env.JWT_SECRET || process.env.MONGODB_URI;
+if (!SECRET) throw new Error("JWT_SECRET or MONGODB_URI must be set");
 const TOKEN_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 interface TokenPayload {
