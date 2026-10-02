@@ -728,7 +728,7 @@ async function saveJob(job: Job) {
 
 **The Trap:**
 ```typescript
-const MONGODB_URI = "mongodb+srv://user:password123@cluster.mongodb.net/mydb";
+const MONGODB_URI = "mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<dbname>";
 ```
 
 Now your credentials are in your code, which is in git, which might be public.
